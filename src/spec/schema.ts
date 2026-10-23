@@ -1,5 +1,3 @@
-
-
 import { isPlainObject } from '../util/text.ts';
 
 export interface JsonSchema {
@@ -68,9 +66,8 @@ function typeNames(schema: JsonSchema): string[] {
   const names: string[] = [];
   if (typeof schema.type === 'string') names.push(schema.type);
   else if (Array.isArray(schema.type)) names.push(...schema.type.filter((t): t is string => typeof t === 'string'));
-  // "nullable: true" allows null *in addition to* the declared type. It
-  // must never introduce a type of its own: a schema that only carries
-  // "nullable" and a $ref or anyOf describes "this object, or null".
+
+
   if (schema.nullable === true && names.length > 0 && !names.includes('null')) names.push('null');
   return names;
 }
@@ -346,11 +343,7 @@ export function generateExample(schema: unknown, options: GenerateOptions = {}):
     if (!isPlainObject(sch)) return null;
     const s = sch as JsonSchema;
 
-    /**
-     * Pick the branch of a oneOf or anyOf that the generated value actually
-     * satisfies. Picking the first branch blindly produces payloads that
-     * violate the contract they are supposed to illustrate.
-     */
+
     const pickBranch = (branches: unknown[], branchKey: string, branchDepth: number): unknown => {
       let fallback: unknown;
       for (const branch of branches) {
@@ -367,10 +360,8 @@ export function generateExample(schema: unknown, options: GenerateOptions = {}):
     if (Array.isArray(s.enum) && s.enum.length > 0) return s.enum[0];
     if (s.const !== undefined) return s.const;
 
-    // Deeply nested schemas are truncated rather than expanded. The result
-    // still has to satisfy the schema, so fall back to an empty value of the
-    // declared type instead of null, which would break the type outright.
-    if (depth > maxDepth) return emptyValueFor(s);
+
+    if (depth > maxDepth) return truncatedValue(s, key, 0, new Set());
 
     if (Array.isArray(s.oneOf) && s.oneOf.length > 0) return pickBranch(s.oneOf, key, depth);
     if (Array.isArray(s.anyOf) && s.anyOf.length > 0) return pickBranch(s.anyOf, key, depth);
@@ -462,31 +453,58 @@ function stableString(schema: JsonSchema, key: string): string {
       break;
   }
 
-  if (/(^|_)id$/.test(name)) return 'id_1001';
-  if (name === 'email') return 'ada@example.com';
-  if (name.includes('phone')) return '+1-555-0100';
-  if (name.includes('url') || name.includes('link')) return 'https://example.com/page';
-  if (name.includes('slug')) return 'sample-slug';
-  if (name.includes('name')) return 'Sample Name';
-  if (name.includes('title')) return 'Sample Title';
-  if (name.includes('description') || name.includes('summary')) return 'Sample description text.';
-  if (name.includes('status') || name.includes('state')) return 'active';
-  if (name.includes('code')) return 'SMP-1001';
-  if (name.includes('price') || name.includes('amount')) return '19.99';
-  if (name.includes('count') || name.endsWith('total')) return '3';
-  if (name.includes('token')) return 'tok_9f2b7c41';
-  if (name.includes('date')) return '2024-01-15';
+  const words = keywordWords(key);
+  const has = (word: string): boolean => words.has(word);
+
+  if (has('id')) return 'id_1001';
+  if (has('email')) return 'ada@example.com';
+  if (has('phone')) return '+1-555-0100';
+  if (has('url') || has('link')) return 'https://example.com/page';
+  if (has('slug')) return 'sample-slug';
+  if (has('name')) return 'Sample Name';
+  if (has('title')) return 'Sample Title';
+  if (has('description') || has('summary')) return 'Sample description text.';
+  if (has('status') || has('state')) return 'active';
+  if (has('code')) return 'SMP-1001';
+  if (has('price') || has('amount')) return '19.99';
+  if (has('count') || hasTotal(key)) return '3';
+  if (has('token')) return 'tok_9f2b7c41';
+  if (has('date')) return '2024-01-15';
 
   return `sample-${name || 'value'}`;
 }
 
-/**
- * Turn a string into one that satisfies the constraints of its schema.
- *
- * A pattern is the hard constraint: a payload that ignores it does not
- * describe the contract it came from. A few candidates are tried and the first
- * one the pattern accepts wins.
- */
+const COMPOUND_KEYWORDS: Record<string, string> = {
+  barcode: 'code',
+  postcode: 'code',
+  zipcode: 'code',
+  filename: 'name',
+  phonenumber: 'phone',
+  emailaddress: 'email',
+};
+
+function keyTokens(key: string): string[] {
+  const spaced = key
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .toLowerCase();
+  return spaced.split(/[^a-z0-9]+/).filter((token) => token.length > 0);
+}
+
+function keywordWords(key: string): Set<string> {
+  const tokens = keyTokens(key);
+  const words = new Set(tokens);
+  for (const [compound, canonical] of Object.entries(COMPOUND_KEYWORDS)) {
+    if (words.has(compound)) words.add(canonical);
+  }
+  return words;
+}
+
+function hasTotal(key: string): boolean {
+  return keyTokens(key).some((token) => token.endsWith('total'));
+}
+
+
 function constrainString(value: string, schema: JsonSchema, key: string): string {
   let result = value;
 
@@ -516,22 +534,80 @@ function constrainString(value: string, schema: JsonSchema, key: string): string
   return result;
 }
 
-/**
- * The smallest value that still satisfies a schema.
- *
- * Used when the generator stops descending because a schema is nested too
- * deeply. Returning null there would break the declared type, so the empty
- * value of the type is used instead.
- */
-export function emptyValueFor(schema: JsonSchema): unknown {
+
+const TRUNCATION_MAX_DEPTH = 50;
+
+function truncatedValue(schema: JsonSchema, key: string, depth: number, ancestors: Set<JsonSchema>): unknown {
+  if (Array.isArray(schema.enum) && schema.enum.length > 0) return schema.enum[0];
+  if (schema.const !== undefined) return schema.const;
+  if (schema.example !== undefined) return schema.example;
+  if (schema.default !== undefined) return schema.default;
+
+  for (const combo of ['oneOf', 'anyOf'] as const) {
+    const branches = schema[combo];
+    if (!Array.isArray(branches) || branches.length === 0) continue;
+    let fallback: unknown;
+    for (const branch of branches) {
+      if (!isPlainObject(branch)) continue;
+      const candidate = truncatedValue(branch as JsonSchema, key, depth, ancestors);
+      if (fallback === undefined) fallback = candidate;
+      if (validateSchema(candidate, branch, { maxErrors: 1 }).length === 0) return candidate;
+    }
+    if (fallback !== undefined) return fallback;
+  }
+
   const names = typeNames(schema);
-  if (names.includes('object')) return {};
-  if (names.includes('array')) return [];
-  if (names.includes('string')) return '';
-  if (names.includes('integer') || names.includes('number')) return 0;
-  if (names.includes('boolean')) return false;
-  if (names.includes('null')) return null;
-  return null;
+  const type = names.find((name) => name !== 'null') ?? 'string';
+
+  switch (type) {
+    case 'object': {
+      const out: Record<string, unknown> = {};
+      if (ancestors.has(schema) || depth > TRUNCATION_MAX_DEPTH) return out;
+      const properties = isPlainObject(schema.properties) ? schema.properties : {};
+      const required = Array.isArray(schema.required) ? schema.required : [];
+      ancestors.add(schema);
+      try {
+        for (const requiredName of required) {
+          const child = properties[requiredName];
+          if (!isPlainObject(child)) continue;
+          out[requiredName] = truncatedValue(child as JsonSchema, requiredName, depth + 1, ancestors);
+        }
+      } finally {
+        ancestors.delete(schema);
+      }
+      return out;
+    }
+    case 'array':
+      return [];
+    case 'string':
+      return constrainString(stableString(schema, key), schema, key);
+    case 'number':
+      return truncatedNumber(schema, false);
+    case 'integer':
+      return truncatedNumber(schema, true);
+    case 'boolean':
+      return false;
+    case 'null':
+      return null;
+    default:
+      return null;
+  }
+}
+
+function truncatedNumber(schema: JsonSchema, integer: boolean): number {
+  if (typeof schema.minimum === 'number') {
+    return integer ? Math.ceil(schema.minimum) : schema.minimum;
+  }
+  if (typeof schema.exclusiveMinimum === 'number') {
+    return integer ? Math.floor(schema.exclusiveMinimum) + 1 : schema.exclusiveMinimum + 0.01;
+  }
+  if (typeof schema.maximum === 'number') {
+    return integer ? Math.floor(schema.maximum) : schema.maximum;
+  }
+  if (typeof schema.exclusiveMaximum === 'number') {
+    return integer ? Math.ceil(schema.exclusiveMaximum) - 1 : schema.exclusiveMaximum - 0.01;
+  }
+  return 0;
 }
 
 export function hashString(text: string): number {

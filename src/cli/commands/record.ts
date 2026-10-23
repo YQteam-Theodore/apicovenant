@@ -1,5 +1,3 @@
-
-
 import { writeTextFile } from '../../util/fs.ts';
 import { serializeGoldenFile } from '../../record/golden.ts';
 import { startRecorder } from '../../record/recorder.ts';

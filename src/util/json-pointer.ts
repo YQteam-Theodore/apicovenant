@@ -1,5 +1,3 @@
-
-
 export type Pointer = string;
 
 export function escapeToken(token: string): string {

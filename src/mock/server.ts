@@ -1,5 +1,3 @@
-
-
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 
@@ -98,6 +96,9 @@ export async function startMockServer(spec: ApiSpec, options: MockServerOptions 
   const server = http.createServer((request, response) => {
     void handleRequest(spec, routes, request, response, options);
   });
+
+  server.keepAliveTimeout = 0;
+  server.headersTimeout = 0;
 
   await new Promise<void>((resolve, reject) => {
     server.once('error', reject);

@@ -161,6 +161,81 @@ test('only includes required properties when asked', () => {
   assert.deepEqual(Object.keys(example), ['id']);
 });
 
+test('keyword matching looks at whole words, not substrings', () => {
+  const schema = {
+    type: 'object',
+    required: ['country', 'discounts', 'account_count', 'postal_code'],
+    properties: {
+      country: { type: 'string' },
+      discounts: { type: 'string' },
+      account_count: { type: 'string' },
+      postal_code: { type: 'string' },
+    },
+  };
+
+  const example = generateExample(schema, { includeOptional: true }) as Record<string, unknown>;
+  assert.equal(example['country'], 'sample-country');
+  assert.equal(example['discounts'], 'sample-discounts');
+  assert.equal(example['account_count'], '3');
+  assert.equal(example['postal_code'], 'SMP-1001');
+});
+
+test('keyword matching understands camel case and separators', () => {
+  const schema = {
+    type: 'object',
+    required: ['postalCode', 'customerId'],
+    properties: {
+      postalCode: { type: 'string' },
+      customerId: { type: 'string' },
+    },
+  };
+
+  const example = generateExample(schema, { includeOptional: true }) as Record<string, unknown>;
+  assert.equal(example['postalCode'], 'SMP-1001');
+  assert.equal(example['customerId'], 'id_1001');
+});
+
+test('truncated values keep required properties, enums and bounds', () => {
+  const leaf = {
+    type: 'object',
+    required: ['kind', 'amount', 'currency'],
+    properties: {
+      kind: { type: 'string', enum: ['fixed', 'variable'] },
+      amount: { type: 'integer', minimum: 5 },
+      currency: { type: 'string' },
+    },
+  };
+
+  let schema: Record<string, unknown> = leaf;
+  for (let depth = 0; depth < 15; depth += 1) {
+    schema = { type: 'object', required: ['nested'], properties: { nested: schema } };
+  }
+
+  const example = generateExample(schema, { includeOptional: true });
+  const violations = validateSchema(example, schema, { maxErrors: 5 });
+  assert.deepEqual(violations, [], 'the truncated value must still satisfy the schema');
+});
+
+test('truncated values satisfy a branch of a oneOf', () => {
+  let schema: Record<string, unknown> = {
+    type: 'object',
+    properties: {
+      variant: {
+        oneOf: [
+          { type: 'object', required: ['kind'], properties: { kind: { type: 'string', enum: ['fixed'] } } },
+          { type: 'object', required: ['other'], properties: { other: { type: 'string' } } },
+        ],
+      },
+    },
+  };
+  for (let depth = 0; depth < 15; depth += 1) {
+    schema = { type: 'object', required: ['nested'], properties: { nested: schema } };
+  }
+
+  const example = generateExample(schema, { includeOptional: true });
+  assert.deepEqual(validateSchema(example, schema, { maxErrors: 5 }), []);
+});
+
 test('deepEqual compares structurally', () => {
   assert.equal(deepEqual({ a: [1, { b: 2 }] }, { a: [1, { b: 2 }] }), true);
   assert.equal(deepEqual({ a: 1 }, { a: 2 }), false);

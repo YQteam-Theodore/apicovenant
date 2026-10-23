@@ -1,5 +1,3 @@
-
-
 export class YamlError extends Error {
   readonly line: number;
   readonly column: number;

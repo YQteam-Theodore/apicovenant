@@ -1,5 +1,3 @@
-
-
 import type { RuleDefinition } from '../types.ts';
 import { operationRules } from './operations.ts';
 import { pathRules } from './paths.ts';

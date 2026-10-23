@@ -1,5 +1,3 @@
-
-
 import { isPlainObject } from '../util/text.ts';
 
 export interface DerefOptions {

@@ -1,15 +1,3 @@
-/**
- * Configuration file support.
- *
- * A project can keep its apicovenant settings in a file instead of repeating
- * the same flags in every CI step. Precedence, highest first:
- *
- *   1. command line flags
- *   2. the file given with `--config`
- *   3. the first configuration file discovered in the working directory
- *   4. built-in defaults
- */
-
 import path from 'node:path';
 import { existsSync } from 'node:fs';
 
@@ -23,26 +11,26 @@ export type FailOn = 'error' | 'warn' | 'never';
 
 export interface ApicovenantConfig {
   rules?: {
-    /** Rules that never run. */
+
     ignore?: string[];
-    /** Rules that run exclusively. */
+
     only?: string[];
   };
-  /** Lowest severity that is reported. */
+
   severity?: Severity;
-  /** Severity at which the command fails. */
+
   failOn?: FailOn;
-  /** Report format. */
+
   format?: ReportFormat;
-  /** Where the report is written. */
+
   output?: string;
-  /** Baseline file: findings recorded here are not reported again. */
+
   baseline?: string;
 }
 
 export interface LoadedConfig {
   config: ApicovenantConfig;
-  /** The file the configuration came from, if any. */
+
   path?: string;
 }
 
@@ -68,7 +56,7 @@ const SEVERITIES: Severity[] = ['error', 'warn', 'info'];
 const FORMATS: ReportFormat[] = ['text', 'json', 'html'];
 const FAIL_ON: FailOn[] = ['error', 'warn', 'never'];
 
-/** Locate a configuration file in the working directory. */
+
 export function findConfigFile(cwd = process.cwd()): string | undefined {
   for (const name of CONFIG_FILE_NAMES) {
     const candidate = path.join(cwd, name);
@@ -77,7 +65,7 @@ export function findConfigFile(cwd = process.cwd()): string | undefined {
   return undefined;
 }
 
-/** Parse a configuration file (JSON or YAML). */
+
 export function parseConfigFile(text: string, filePath: string): ApicovenantConfig {
   const extension = path.extname(filePath).toLowerCase();
   let parsed: unknown;
@@ -86,7 +74,7 @@ export function parseConfigFile(text: string, filePath: string): ApicovenantConf
     parsed = parseYaml(text);
   } else {
     try {
-      // Editors on Windows add a byte order mark; it is not part of the file.
+
       const source = text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
       parsed = JSON.parse(source);
     } catch (error) {
@@ -175,12 +163,7 @@ function toStringList(value: unknown, label: string): string[] {
   });
 }
 
-/**
- * Load the configuration.
- *
- * @param options.explicitPath a file given with `--config`
- * @param options.cwd the directory to search
- */
+
 export async function loadConfig(
   options: { explicitPath?: string; cwd?: string } = {},
 ): Promise<LoadedConfig> {
@@ -223,7 +206,7 @@ export async function loadConfig(
   return { config: {} };
 }
 
-/** The configuration a fresh project starts with. */
+
 export const DEFAULT_CONFIG: ApicovenantConfig = {
   rules: { ignore: [], only: [] },
   severity: 'info',

@@ -1,5 +1,3 @@
-
-
 import { generateExample } from '../spec/schema.ts';
 import { deref, followRef } from '../spec/ref.ts';
 import { isPlainObject } from '../util/text.ts';

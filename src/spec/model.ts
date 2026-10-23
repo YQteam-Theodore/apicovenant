@@ -1,5 +1,3 @@
-
-
 import { isPlainObject, toArray } from '../util/text.ts';
 import { followRef } from './ref.ts';
 

@@ -1,5 +1,3 @@
-
-
 export type StyleName =
   | 'bold'
   | 'dim'

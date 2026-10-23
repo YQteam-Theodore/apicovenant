@@ -1,17 +1,4 @@
 #!/usr/bin/env node
-/**
- * Release check for apicovenant.
- *
- * Runs the checks that a release depends on: the rule catalogue stays in sync
- * with the documentation, every rule is exercised by a fixture, the README
- * makes no false claims, every link resolves, the published file list is
- * accurate, and no dead code or debug leftovers ship.
- *
- *     node scripts/release-check.mjs
- *
- * Exits with 1 when something is wrong.
- */
-
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -39,7 +26,6 @@ const files = walk(root);
 const rel = (file) => path.relative(root, file).split(path.sep).join('/');
 const read = (file) => fs.readFileSync(path.isAbsolute(file) ? file : path.join(root, file), 'utf8');
 
-// ---------------------------------------------------------------- rule sync
 
 const RULE_FILES = [
   'src/lint/rules/document.ts',
@@ -75,7 +61,6 @@ for (const id of docRules.keys()) {
 }
 notes.push(`rules: ${codeRules.size} in code, ${docRules.size} documented`);
 
-// ------------------------------------------------------------------- claims
 
 const readme = read('README.md');
 const readmeZh = read('README.zh-CN.md');
@@ -88,7 +73,6 @@ for (const [name, text] of [['README.md', readme], ['README.zh-CN.md', readmeZh]
   }
 }
 
-// -------------------------------------------------------------------- links
 
 for (const [name, text] of [
   ['README.md', readme],
@@ -110,7 +94,6 @@ for (const [name, text] of [
   }
 }
 
-// ------------------------------------------------------------------ package
 
 const pkg = JSON.parse(read('package.json'));
 for (const entry of pkg.files ?? []) {
@@ -133,7 +116,7 @@ if (!read('LICENSE').startsWith('                                 Apache License
 }
 if (!fs.existsSync(path.join(root, 'NOTICE'))) fail('an Apache-2.0 project should ship a NOTICE file');
 
-// The version the CLI reports must be the version in package.json.
+
 const versionSource = read('src/version.ts');
 if (!versionSource.includes("'..', 'package.json'")) {
   fail('src/version.ts does not read package.json from the package root');
@@ -146,7 +129,6 @@ if (reportedVersion !== pkg.version) {
 }
 notes.push(`version: ${reportedVersion}`);
 
-// -------------------------------------------------------------- dead exports
 
 const sourceFiles = files.filter((file) => rel(file).startsWith('src/') && file.endsWith('.ts'));
 const testFiles = files.filter((file) => rel(file).startsWith('test/') && file.endsWith('.ts'));
@@ -166,13 +148,12 @@ for (const [name, defs] of exported) {
   if (uses <= defs.length) fail(`unused export "${name}" (${defs.join(', ')})`);
 }
 
-// ------------------------------------------------------------------ hygiene
 
 for (const file of files) {
   const name = rel(file);
   if (!/\.(ts|mjs|js|json|ya?ml)$/.test(name)) continue;
   if (name.startsWith('assets/') || name.startsWith('examples/') || name.startsWith('.github/')) continue;
-  // This script necessarily contains the marker strings it looks for.
+
   if (name === 'scripts/release-check.mjs') continue;
   const text = read(file);
   const isTool = name.startsWith('scripts/');
@@ -184,7 +165,6 @@ for (const file of files) {
   if (text.length > 0 && !text.endsWith('\n')) fail(`${name} does not end with a newline`);
 }
 
-// ------------------------------------------------------------------- output
 
 notes.forEach((note) => console.log(note));
 

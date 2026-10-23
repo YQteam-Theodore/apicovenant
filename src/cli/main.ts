@@ -1,14 +1,3 @@
-/**
- * Command line entry point.
- *
- * Every command returns a process exit code:
- *
- *   0  success
- *   1  findings above the configured threshold, or contract drift
- *   2  usage error (unknown flag, missing argument)
- *   3  the document could not be read or parsed
- */
-
 import { parseArgs } from 'node:util';
 
 import { red } from '../util/ansi.ts';
@@ -94,7 +83,7 @@ const HELP_BY_COMMAND: Record<string, string> = {
   init: INIT_HELP,
 };
 
-/** Run the CLI and return the process exit code. */
+
 export async function run(argv: string[]): Promise<number> {
   let parsed: { values: ParsedValues; positionals: string[] };
 
@@ -213,7 +202,7 @@ export async function run(argv: string[]): Promise<number> {
   }
 }
 
-/** Entry point used by the bin script. */
+
 export async function main(): Promise<void> {
   const code = await run(process.argv.slice(2));
   process.exitCode = code;

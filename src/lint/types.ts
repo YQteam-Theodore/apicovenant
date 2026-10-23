@@ -1,5 +1,3 @@
-
-
 import type { ApiSpec } from '../spec/model.ts';
 
 export type Severity = 'error' | 'warn' | 'info';

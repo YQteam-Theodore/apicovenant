@@ -1,5 +1,3 @@
-
-
 import { SEVERITY_ORDER, type Finding, type LintOptions, type LintResult, type RuleDefinition, type Severity } from './types.ts';
 import { ALL_RULES } from './rules/index.ts';
 import type { ApiSpec } from '../spec/model.ts';

@@ -1,12 +1,3 @@
-/**
- * Baseline support.
- *
- * A linter that reports 400 findings on an existing codebase can never be
- * adopted: the team turns it off on day one. A baseline records the findings
- * that already exist, so the command only fails on **new** ones. The baseline
- * is meant to be committed and shrinks over time.
- */
-
 import { readTextFile, writeTextFile } from './util/fs.ts';
 import type { Finding } from './lint/types.ts';
 
@@ -25,12 +16,12 @@ export interface BaselineFile {
   findings: BaselineEntry[];
 }
 
-/** A stable identity for a finding across runs. */
+
 export function findingFingerprint(finding: { ruleId: string; path: string; message: string }): string {
   return `${finding.ruleId}|${finding.path}|${finding.message}`;
 }
 
-/** Build a baseline from a set of findings. */
+
 export function buildBaseline(findings: Finding[], createdAt?: string): BaselineFile {
   const now = new Date().toISOString();
   const seen = new Set<string>();
@@ -59,11 +50,11 @@ export function buildBaseline(findings: Finding[], createdAt?: string): Baseline
   };
 }
 
-/** Parse a baseline file. */
+
 export function parseBaseline(text: string, filePath = '<baseline>'): BaselineFile {
   let parsed: unknown;
   try {
-    // Editors on Windows add a byte order mark; it is not part of the file.
+
     const source = text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
     parsed = JSON.parse(source);
   } catch (error) {
@@ -96,7 +87,7 @@ export function parseBaseline(text: string, filePath = '<baseline>'): BaselineFi
   };
 }
 
-/** Read a baseline file from disk. A missing file means an empty baseline. */
+
 export async function loadBaseline(filePath: string): Promise<BaselineFile> {
   let text: string;
   try {
@@ -107,19 +98,19 @@ export async function loadBaseline(filePath: string): Promise<BaselineFile> {
   return parseBaseline(text, filePath);
 }
 
-/** Write a baseline file. */
+
 export async function saveBaseline(filePath: string, baseline: BaselineFile): Promise<void> {
   await writeTextFile(filePath, `${JSON.stringify(baseline, null, 2)}\n`);
 }
 
 export interface BaselineResult {
-  /** Findings that are not in the baseline. */
+
   fresh: Finding[];
-  /** Findings that the baseline already knows about. */
+
   suppressed: Finding[];
 }
 
-/** Split findings into the ones the baseline does not know and the ones it does. */
+
 export function applyBaseline(findings: Finding[], baseline: BaselineFile): BaselineResult {
   const known = new Set(baseline.findings.map(findingFingerprint));
   const fresh: Finding[] = [];

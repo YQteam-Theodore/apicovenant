@@ -1,5 +1,3 @@
-
-
 import type { RuleDefinition } from '../types.ts';
 
 const VERB_SEGMENTS = new Set([

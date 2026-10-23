@@ -1,17 +1,9 @@
-/**
- * A standalone HTML report for a contract diff.
- *
- * The same visual language as the lint report, so a CI job can publish one
- * artefact that covers both "is the design consistent" and "did the behaviour
- * change".
- */
-
 import type { DiffReport } from '../diff/compare.ts';
 import { escapeHtml } from './html.ts';
 
 export interface DiffHtmlOptions {
   report: DiffReport;
-  /** The golden file that was replayed. */
+
   goldenFile: string;
   title?: string;
 }
@@ -44,13 +36,32 @@ function renderInteraction(interaction: DiffReport['interactions'][number]): str
     );
   }
 
+  for (const violation of interaction.mockViolations) {
+    rows.push(
+      `      <div class="line warn"><span class="tag">mock</span><code>${escapeHtml(violation.path || '/')}</code> ${escapeHtml(violation.message)}</div>`,
+    );
+  }
+
   for (const difference of interaction.body.differences) {
     rows.push(
       `      <div class="line"><span class="tag ${difference.kind}">${escapeHtml(difference.kind)}</span><code>${escapeHtml(difference.path)}</code> ${escapeHtml(JSON.stringify(difference.before) ?? '(absent)')} → <strong>${escapeHtml(JSON.stringify(difference.after) ?? '(absent)')}</strong></div>`,
     );
   }
 
-  const state = interaction.skipped ? 'skipped' : interaction.error ? 'changed' : interaction.status.changed || interaction.body.changed || interaction.headers.some((h) => h.changed) || interaction.schemaViolations.length > 0 ? 'changed' : 'same';
+  const drifted =
+    interaction.status.changed ||
+    interaction.body.changed ||
+    interaction.headers.some((h) => h.changed) ||
+    interaction.schemaViolations.length > 0;
+  const state = interaction.skipped
+    ? 'skipped'
+    : interaction.error
+      ? 'changed'
+      : drifted
+        ? 'changed'
+        : interaction.mockViolations.length > 0
+          ? 'warn'
+          : 'same';
 
   return `    <article class="interaction ${state}">
       <header><span class="method">${escapeHtml(interaction.method)}</span><span class="path">${escapeHtml(interaction.path)}</span></header>
@@ -58,7 +69,7 @@ ${rows.length > 0 ? rows.join('\n') : '      <div class="line muted">No differen
     </article>`;
 }
 
-/** Render a contract diff as a standalone HTML document. */
+
 export function renderDiffHtmlReport(options: DiffHtmlOptions): string {
   const { report } = options;
   const summary = report.summary;
@@ -133,6 +144,7 @@ export function renderDiffHtmlReport(options: DiffHtmlOptions): string {
   }
   .interaction.changed { border-left-color: var(--error); }
   .interaction.same { border-left-color: var(--ok); }
+  .interaction.warn { border-left-color: var(--warn); }
   .interaction.skipped { border-left-color: var(--warn); }
   .interaction > header { margin-bottom: .5rem; display: flex; gap: .6rem; align-items: baseline; }
   .method { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8rem; font-weight: 700; color: var(--accent); }

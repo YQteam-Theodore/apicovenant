@@ -1,8 +1,6 @@
-
-
 import { bold, cyan, dim, green, magenta, red, yellow } from '../util/ansi.ts';
 import { humanizePointer } from '../util/json-pointer.ts';
-import { describeReport, summariseDifferences, type DiffReport } from '../diff/compare.ts';
+import { describeReport, summariseDifferences, summariseMockViolations, type DiffReport } from '../diff/compare.ts';
 
 export interface DiffTextOptions {
   report: DiffReport;
@@ -41,10 +39,21 @@ export function renderDiffReport(options: DiffTextOptions): string {
     }
 
     const details = summariseDifferences(interaction);
+    const mockNotes = summariseMockViolations(interaction);
     if (details.length === 0) {
-      if (printed >= limit) continue;
+      if (mockNotes.length === 0) {
+        if (printed >= limit) continue;
+        printed += 1;
+        lines.push(`${green('✓')} ${interaction.key}`);
+        lines.push('');
+        continue;
+      }
+      if (printed >= limit) break;
       printed += 1;
-      lines.push(`${green('✓')} ${interaction.key}`);
+      lines.push(`${yellow('◐')} ${bold(interaction.key)} ${dim('(the mock does not satisfy the spec)')}`);
+      for (const note of mockNotes) {
+        lines.push(`  ${cyan('!')} ${note}`);
+      }
       lines.push('');
       continue;
     }
@@ -62,6 +71,9 @@ export function renderDiffReport(options: DiffTextOptions): string {
         lines.push(`  ${yellow('•')} ${detail}`);
       }
     }
+    for (const note of mockNotes) {
+      lines.push(`  ${cyan('!')} ${note}`);
+    }
 
     for (const difference of interaction.body.differences.slice(0, 8)) {
       lines.push(
@@ -76,6 +88,16 @@ export function renderDiffReport(options: DiffTextOptions): string {
 
   if (limit < report.interactions.length) {
     lines.push(dim(`  … ${report.interactions.length - limit} more interactions (use --format json for the full report)`));
+    lines.push('');
+  }
+
+  const mockIssues = report.interactions.reduce((total, interaction) => total + interaction.mockViolations.length, 0);
+  if (mockIssues > 0) {
+    lines.push(
+      yellow(
+        `⚠ ${mockIssues} schema problem${mockIssues === 1 ? '' : 's'} in the generated mock — a generator limitation, not contract drift`,
+      ),
+    );
     lines.push('');
   }
 

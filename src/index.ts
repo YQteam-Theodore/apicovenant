@@ -1,17 +1,3 @@
-/**
- * apicovenant — an OpenAPI contract guardian.
- *
- * The command line interface is the primary interface, but everything it does
- * is available programmatically as well:
- *
- * ```ts
- * import { lint, loadSpecFile } from 'apicovenant';
- *
- * const spec = await loadSpecFile('openapi.yaml');
- * const result = lint(spec);
- * ```
- */
-
 export { lint, allRules, findRule, selectRules } from './lint/engine.ts';
 export type {
   Finding,

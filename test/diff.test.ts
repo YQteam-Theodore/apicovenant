@@ -1,7 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import http from 'node:http';
 
 import { diffJson, parseBody } from '../src/diff/json-diff.ts';
+import { compareGolden, HttpLiveSource, type LiveSource } from '../src/diff/compare.ts';
+import { loadSpecFromText } from '../src/spec/loader.ts';
 import {
   parseGoldenFile,
   serializeGoldenFile,
@@ -89,4 +92,98 @@ test('parseGoldenFile rejects malformed input', () => {
 test('interactionKey is stable and includes the query', () => {
   assert.equal(interactionKey({ method: 'GET', path: '/a', query: { b: '2', a: '1' } }), 'GET /a?a=1&b=2');
   assert.equal(interactionKey({ method: 'GET', path: '/a' }), 'GET /a');
+});
+
+const WIDGET_SPEC = {
+  openapi: '3.0.3',
+  info: { title: 'Widgets', version: '1.0.0' },
+  paths: {
+    '/widgets': {
+      get: {
+        operationId: 'listWidgets',
+        responses: {
+          200: {
+            description: 'ok',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['name'],
+                  properties: { name: { type: 'string' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+function widgetGolden(): ReturnType<typeof createGoldenFile> {
+  const file = createGoldenFile('http://example.com', 'openapi.yaml');
+  file.interactions.push({
+    method: 'GET',
+    path: '/widgets',
+    query: {},
+    requestHeaders: {},
+    status: 200,
+    responseHeaders: { 'content-type': 'application/json' },
+    body: '{"name":123}',
+    bodyType: 'json',
+    durationMs: 1,
+  });
+  return file;
+}
+
+function widgetSource(derivedFromSpec: boolean): LiveSource {
+  return {
+    description: 'test',
+    derivedFromSpec,
+    async request() {
+      return { status: 200, headers: { 'content-type': 'application/json' }, body: '{"name":123}' };
+    },
+  };
+}
+
+test('a schema violation counts as drift against a live API', async () => {
+  const spec = loadSpecFromText(JSON.stringify(WIDGET_SPEC));
+  const report = await compareGolden(widgetGolden(), widgetSource(false), { spec });
+  assert.equal(report.summary.changed, 1);
+  assert.equal(report.interactions[0]?.schemaViolations.length, 1);
+  assert.equal(report.interactions[0]?.mockViolations.length, 0);
+});
+
+test('a mock that breaks its own spec is kept out of the drift verdict', async () => {
+  const spec = loadSpecFromText(JSON.stringify(WIDGET_SPEC));
+  const report = await compareGolden(widgetGolden(), widgetSource(true), { spec });
+  assert.equal(report.summary.changed, 0);
+  assert.equal(report.interactions[0]?.schemaViolations.length, 0);
+  assert.equal(report.interactions[0]?.mockViolations.length, 1);
+});
+
+test('a dropped connection is retried for a safe request', async () => {
+  let attempts = 0;
+  const server = http.createServer((request, response) => {
+    attempts += 1;
+    if (attempts === 1) {
+      request.socket.destroy();
+      return;
+    }
+    response.writeHead(200, { 'content-type': 'application/json' });
+    response.end('{"name":123}');
+  });
+
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+  const address = server.address() as { port: number };
+
+  try {
+    const source = new HttpLiveSource(`http://127.0.0.1:${address.port}`);
+    const report = await compareGolden(widgetGolden(), source);
+    assert.equal(attempts, 2);
+    assert.equal(report.summary.failed, 0);
+    assert.equal(report.interactions[0]?.error, undefined);
+  } finally {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
 });

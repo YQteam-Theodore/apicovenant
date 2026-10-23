@@ -1,5 +1,3 @@
-
-
 import type { RuleDefinition } from '../types.ts';
 import { componentSchemas } from '../../spec/model.ts';
 import { isPlainObject, isCamelCase, isSnakeCase, isKebabCase, dominantStyle } from '../../util/text.ts';

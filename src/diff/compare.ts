@@ -1,5 +1,3 @@
-
-
 import { compilePath } from '../mock/server.ts';
 import { validateSchema, type SchemaViolation } from '../spec/schema.ts';
 import { deref, followRef } from '../spec/ref.ts';
@@ -16,6 +14,9 @@ export interface LiveResponse {
 export interface LiveSource {
 
   readonly description: string;
+
+  readonly derivedFromSpec?: boolean;
+
   request(interaction: GoldenInteraction): Promise<LiveResponse>;
 }
 
@@ -33,34 +34,13 @@ export class HttpLiveSource implements LiveSource {
   async request(interaction: GoldenInteraction): Promise<LiveResponse> {
     const query = new URLSearchParams(interaction.query).toString();
     const url = `${this.baseUrl}${interaction.path}${query ? `?${query}` : ''}`;
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
-
-    try {
-      const response = await fetch(url, {
-        method: interaction.method,
-        headers: interaction.requestHeaders,
-        body: interaction.method === 'GET' || interaction.method === 'HEAD' ? undefined : interaction.body,
-        signal: controller.signal,
-        redirect: 'manual',
-      });
-
-      const headers: Record<string, string> = {};
-      response.headers.forEach((value, name) => {
-        headers[name.toLowerCase()] = value;
-      });
-
-      const body = await response.text();
-      return { status: response.status, headers, body };
-    } finally {
-      clearTimeout(timer);
-    }
+    return fetchLive(url, interaction, this.timeoutMs);
   }
 }
 
 export class MockLiveSource implements LiveSource {
   readonly description: string;
+  readonly derivedFromSpec = true;
   private readonly url: string;
 
   constructor(url: string, description?: string) {
@@ -71,11 +51,41 @@ export class MockLiveSource implements LiveSource {
   async request(interaction: GoldenInteraction): Promise<LiveResponse> {
     const query = new URLSearchParams(interaction.query).toString();
     const url = `${this.url}${interaction.path}${query ? `?${query}` : ''}`;
+    return fetchLive(url, interaction);
+  }
+}
 
+async function fetchLive(url: string, interaction: GoldenInteraction, timeoutMs?: number): Promise<LiveResponse> {
+  const attempts = SAFE_METHODS.has(interaction.method.toUpperCase()) ? 2 : 1;
+  let failure: unknown;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await performFetch(url, interaction, timeoutMs);
+    } catch (error) {
+      failure = error;
+      if (attempt + 1 < attempts) {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+    }
+  }
+  throw failure;
+}
+
+async function performFetch(
+  url: string,
+  interaction: GoldenInteraction,
+  timeoutMs?: number,
+): Promise<LiveResponse> {
+  const controller = new AbortController();
+  const timer = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : undefined;
+
+  try {
     const response = await fetch(url, {
       method: interaction.method,
       headers: interaction.requestHeaders,
       body: interaction.method === 'GET' || interaction.method === 'HEAD' ? undefined : interaction.body,
+      signal: controller.signal,
       redirect: 'manual',
     });
 
@@ -86,6 +96,8 @@ export class MockLiveSource implements LiveSource {
 
     const body = await response.text();
     return { status: response.status, headers, body };
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }
 
@@ -112,6 +124,8 @@ export interface InteractionDiff {
   };
 
   schemaViolations: SchemaViolation[];
+
+  mockViolations: SchemaViolation[];
 
   error?: string;
 
@@ -197,6 +211,7 @@ export async function compareGolden(
         headers: [],
         body: { changed: false, differences: [] },
         schemaViolations: [],
+        mockViolations: [],
         skipped: true,
       });
       continue;
@@ -214,6 +229,7 @@ export async function compareGolden(
         headers: [],
         body: { changed: false, differences: [] },
         schemaViolations: [],
+        mockViolations: [],
         error: (error as Error).message,
       });
       continue;
@@ -239,7 +255,9 @@ export async function compareGolden(
     const operation = options.spec
       ? matchOperation(options.spec, interaction.method, interaction.path)
       : undefined;
-    const schemaViolations = validateAgainstSpec(options.spec as ApiSpec, operation, live);
+    const detected = validateAgainstSpec(options.spec as ApiSpec, operation, live);
+    const schemaViolations = source.derivedFromSpec ? [] : detected;
+    const mockViolations = source.derivedFromSpec ? detected : [];
 
     interactions.push({
       key,
@@ -253,6 +271,7 @@ export async function compareGolden(
       headers: headerDiffs,
       body: { changed: differences.length > 0, differences },
       schemaViolations,
+      mockViolations,
     });
   }
 
@@ -306,6 +325,12 @@ export function summariseDifferences(interaction: InteractionDiff): string[] {
     out.push(`schema violation at ${violation.path || '/'}: ${violation.message}`);
   }
   return out;
+}
+
+export function summariseMockViolations(interaction: InteractionDiff): string[] {
+  return interaction.mockViolations.map(
+    (violation) => `mock does not satisfy the spec at ${violation.path || '/'}: ${violation.message}`,
+  );
 }
 
 export function describeReport(report: DiffReport): string {

@@ -228,6 +228,9 @@ $ apicovenant mock examples/shop.openapi.yaml --port 4010
 
 有 example 就用 example，没有就从 schema **确定性地生成** —— 所以同一份规范跑两次 mock，返回的字节完全一致。
 
+生成的响应体**满足它所依据的 schema**，包括难处理的部分：required 属性一个不少，枚举字段取文档里的值，
+比生成器下钻深度更深的 schema 会被截断成**仍然能通过校验**的值，而不是空对象或空字符串。
+
 ```bash
 # 强制指定状态码
 curl 'http://127.0.0.1:4010/users?x-mock-status=404'
@@ -303,6 +306,10 @@ apicovenant diff --golden traffic.golden.json --spec examples/shop.openapi.yaml
 ```
 
 带上 spec 时，新的响应还会**按文档 schema 做校验**，所以「还能解析但已经不符合契约」的响应会被报成 schema 违规。
+
+对着**真实 API** 比对时，schema 违规就是契约漂移，会让这次比对失败；对着**同一份规范生成的 mock** 比对时，
+这个校验是自我循环的 —— mock 就是这份规范自己的渲染，只能印证自己。这类问题会被单独列为生成器的局限，
+**不会**算成漂移。
 
 ## 接入 CI
 

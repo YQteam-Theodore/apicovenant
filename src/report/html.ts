@@ -1,5 +1,3 @@
-
-
 import type { Finding, Severity } from '../lint/types.ts';
 
 export interface HtmlReportOptions {

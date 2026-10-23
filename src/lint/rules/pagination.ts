@@ -1,5 +1,3 @@
-
-
 import type { RuleDefinition } from '../types.ts';
 import { isPlainObject } from '../../util/text.ts';
 import { followRef } from '../../spec/ref.ts';
@@ -130,12 +128,7 @@ export const paginationEnvelope: RuleDefinition = {
   },
 };
 
-/**
- * True when the collection pages with a cursor.
- *
- * Cursor based APIs rarely know the total number of items — counting them can
- * be expensive or impossible — so asking for a total count is wrong advice.
- */
+
 function usesCursorPagination(
   operation: { parameters: Array<{ name: string; in: string }> },
   responseProperties: string[],

@@ -1,5 +1,3 @@
-
-
 import { startMockServer } from '../../mock/server.ts';
 import { bold, cyan, dim, green } from '../../util/ansi.ts';
 import { loadSpec } from '../common.ts';

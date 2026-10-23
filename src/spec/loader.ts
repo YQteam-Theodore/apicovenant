@@ -1,5 +1,3 @@
-
-
 import path from 'node:path';
 
 import { parseYaml, YamlError } from '../yaml/parser.ts';

@@ -1,5 +1,3 @@
-
-
 import { loadSpecFile, loadSpecFromStdin, SpecError } from '../spec/loader.ts';
 import type { ApiSpec } from '../spec/model.ts';
 import type { Severity } from '../lint/types.ts';

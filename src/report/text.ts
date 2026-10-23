@@ -1,5 +1,3 @@
-
-
 import { bold, cyan, dim, green, magenta, red, yellow } from '../util/ansi.ts';
 import { humanizePointer } from '../util/json-pointer.ts';
 import { truncate } from '../util/text.ts';
@@ -31,10 +29,7 @@ export interface TextReportOptions {
 
   limit?: number;
 
-  /**
-   * How many findings of one rule are printed before the rest are summarised.
-   * A single rule must never be able to bury the whole report.
-   */
+
   maxPerRule?: number;
 }
 

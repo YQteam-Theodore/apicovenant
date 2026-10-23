@@ -1,5 +1,3 @@
-
-
 import type { RuleDefinition } from '../types.ts';
 import { securitySchemes } from '../../spec/model.ts';
 

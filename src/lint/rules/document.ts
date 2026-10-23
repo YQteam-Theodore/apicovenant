@@ -1,5 +1,3 @@
-
-
 import type { RuleDefinition } from '../types.ts';
 
 export const openapiVersionSupported: RuleDefinition = {

@@ -1,5 +1,3 @@
-/** `apicovenant init` — write a starter configuration file. */
-
 import path from 'node:path';
 import { existsSync } from 'node:fs';
 
@@ -9,9 +7,9 @@ import { DEFAULT_CONFIG } from '../../config.ts';
 
 export interface InitCommandOptions {
   cwd?: string;
-  /** Overwrite an existing file. */
+
   force?: boolean;
-  /** Name of the file to create. */
+
   fileName?: string;
 }
 

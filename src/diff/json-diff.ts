@@ -1,5 +1,3 @@
-
-
 import { pointer } from '../util/json-pointer.ts';
 import { isPlainObject } from '../util/text.ts';
 

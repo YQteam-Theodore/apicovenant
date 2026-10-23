@@ -35,7 +35,9 @@ The first stable release. One CLI, four commands, zero runtime dependencies.
   and reports behaviour drift: status codes, headers and body differences
   addressed by JSON Pointer. Only safe methods are replayed unless
   `--replay-all` is given. With `--spec`, responses are additionally validated
-  against the documented schema. The report can be written as `html`.
+  against the documented schema. The report can be written as `html`. A mock
+  built from that spec can only confirm itself, so its own schema problems are
+  listed separately and never counted as drift.
 - **`apicovenant rules`** — the rule catalogue, as text or JSON.
 - **`apicovenant init`** — writes a starter configuration file.
 - **Configuration files** — `apicovenant.config.json`, the YAML equivalents,
@@ -61,6 +63,18 @@ The first stable release. One CLI, four commands, zero runtime dependencies.
 
 ### Fixed
 
+- The mock payload could violate the schema it was generated from. A schema
+  nested deeper than the generator descends into was truncated to an empty
+  object or an empty string, which broke `required` properties and enum
+  members. The truncated value now keeps the required properties, an allowed
+  enum value and the numeric bounds, so a mock always satisfies its own spec.
+- The example generator matched keywords as substrings, so `country` and
+  `discount` were answered with `"3"`. Keywords are matched on whole words
+  now, and camel case is understood.
+- The mock server closed idle keep-alive connections while the diff was
+  validating the previous response, and the next request reused the dead
+  socket and failed with `ECONNRESET`. Safe requests are retried once and the
+  mock keeps its connections open.
 - The global `Response` type resolved to an empty interface under
   `@types/node` without the DOM lib, so `fetch` responses had no `status`,
   `headers` or `text`. `lib` now includes `DOM`.

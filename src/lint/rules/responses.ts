@@ -1,5 +1,3 @@
-
-
 import type { RuleDefinition } from '../types.ts';
 import { isPlainObject } from '../../util/text.ts';
 import { isRefNode, refName } from '../../spec/ref.ts';

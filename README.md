@@ -232,6 +232,11 @@ Responses come from the documented example when there is one, and from a
 **deterministic payload generated from the schema** when there is not — so two
 runs of your mock produce byte-identical bodies.
 
+The generated payload **satisfies the schema it was generated from**, including
+the awkward parts: required properties are present, enumerated fields hold a
+documented value, and a schema nested deeper than the generator descends into
+is truncated to a value that still validates instead of an empty one.
+
 ```bash
 # force a status code
 curl 'http://127.0.0.1:4010/users?x-mock-status=404'
@@ -311,6 +316,12 @@ apicovenant diff --golden traffic.golden.json --spec examples/shop.openapi.yaml
 When a spec is supplied, the new responses are additionally **validated against
 the documented schema**, so a response that still parses but no longer matches
 the contract is reported as a schema violation.
+
+Against a live API a schema violation *is* contract drift and fails the run.
+Against a mock built from that same spec the check would be circular — the mock
+is the spec's own rendering, so it can only ever confirm itself. Those findings
+are therefore listed separately as generator limitations and never counted as
+drift.
 
 ## CI integration
 

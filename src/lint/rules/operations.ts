@@ -1,5 +1,3 @@
-
-
 import type { RuleDefinition } from '../types.ts';
 
 const VERB_PREFIXES = [
@@ -259,7 +257,7 @@ export const operationMethodSemantics: RuleDefinition = {
   },
 };
 
-/** True when a request body actually carries something. */
+
 function hasContent(body: { required?: boolean; content: Map<string, { schema?: unknown }> }): boolean {
   if (body.required === true) return true;
   for (const mediaType of body.content.values()) {

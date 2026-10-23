@@ -1,5 +1,3 @@
-
-
 export const GOLDEN_FORMAT_VERSION = 1;
 
 export interface GoldenInteraction {
