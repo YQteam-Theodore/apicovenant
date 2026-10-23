@@ -38,7 +38,7 @@ export function renderHtmlReport(options: HtmlReportOptions): string {
       const hint = finding.hint
         ? `<div class="hint"><span class="arrow">&rarr;</span> ${escapeHtml(finding.hint)}</div>`
         : '';
-      return `      <tr class="severity-${finding.severity}">
+      return `      <tr class="severity-${finding.severity}" data-severity="${finding.severity}">
         <td><span class="pill pill-${finding.severity}">${escapeHtml(finding.severity)}</span></td>
         <td class="rule">${escapeHtml(finding.ruleId)}</td>
         <td class="location">${location}<div class="path">${escapeHtml(finding.path)}</div></td>
@@ -193,7 +193,9 @@ ${emptyState}
         var filter = button.getAttribute('data-filter');
         buttons.forEach(function (other) { other.classList.toggle('active', other === button); });
         rows.forEach(function (row) {
-          var severity = row.className.replace('severity-', '');
+          // The severity is read from the data attribute, not from the class
+          // list: a hidden row also carries the "hidden" class.
+          var severity = row.getAttribute('data-severity');
           row.classList.toggle('hidden', filter !== 'all' && severity !== filter);
         });
       });

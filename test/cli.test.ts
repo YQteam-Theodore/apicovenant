@@ -122,3 +122,15 @@ test('an unknown command exits with a usage error', async () => {
   assert.equal(result.code, 2);
   assert.match(result.stderr, /unknown command/);
 });
+
+test('the shipped golden file still matches the reference contract', async () => {
+  const result = await runCli([
+    'diff',
+    '--golden',
+    path.join(root, 'examples', 'traffic.golden.json'),
+    '--spec',
+    shopSpec,
+  ]);
+  assert.equal(result.code, 0, result.stdout);
+  assert.match(result.stdout, /the contract held/);
+});
