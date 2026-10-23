@@ -1,6 +1,6 @@
 
 
-import { readTextFile, writeTextFile } from '../../util/fs.ts';
+import { writeTextFile } from '../../util/fs.ts';
 import { serializeGoldenFile } from '../../record/golden.ts';
 import { startRecorder } from '../../record/recorder.ts';
 import { bold, cyan, dim, green } from '../../util/ansi.ts';
@@ -57,8 +57,4 @@ export async function runRecord(options: RecordCommandOptions): Promise<number> 
     `${green('✓')} ${file.interactions.length} interaction${file.interactions.length === 1 ? '' : 's'} written to ${bold(options.out)}\n`,
   );
   return 0;
-}
-
-export async function readGoldenFile(filePath: string): Promise<string> {
-  return readTextFile(filePath);
 }

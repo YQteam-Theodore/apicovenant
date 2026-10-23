@@ -1,11 +1,5 @@
-
-
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-export function isNonEmptyString(value: unknown): value is string {
-  return typeof value === 'string' && value.trim().length > 0;
 }
 
 export function toArray<T>(value: T | T[] | undefined | null): T[] {
@@ -26,36 +20,12 @@ export function isCamelCase(text: string): boolean {
   return /^[a-z][a-zA-Z0-9]*$/.test(text);
 }
 
-export function isPascalCase(text: string): boolean {
-  return /^[A-Z][a-zA-Z0-9]*$/.test(text);
-}
-
-export function isKebabCase(text: string): boolean {
-  return /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(text);
-}
-
 export function isSnakeCase(text: string): boolean {
   return /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/.test(text);
 }
 
-export function words(text: string): string[] {
-  return text
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .split(/[^A-Za-z0-9]+/)
-    .filter(Boolean)
-    .map((w) => w.toLowerCase());
-}
-
-export function titleCase(text: string): string {
-  return words(text)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
-
-export function pluralize(word: string): string {
-  if (/(s|x|z|ch|sh)$/i.test(word)) return `${word}es`;
-  if (/[^aeiou]y$/i.test(word)) return `${word.slice(0, -1)}ies`;
-  return `${word}s`;
+export function isKebabCase(text: string): boolean {
+  return /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(text);
 }
 
 export function dominantStyle(values: string[]): 'camelCase' | 'snake_case' | 'kebab-case' | 'other' {

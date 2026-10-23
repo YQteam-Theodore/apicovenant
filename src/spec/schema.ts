@@ -1,7 +1,6 @@
 
 
 import { isPlainObject } from '../util/text.ts';
-import { pointer } from '../util/json-pointer.ts';
 
 export interface JsonSchema {
   type?: string | string[];
@@ -467,8 +466,4 @@ export function hashString(text: string): number {
     hash = Math.imul(hash, 16777619);
   }
   return Math.abs(hash);
-}
-
-export function propertyPointer(...keys: string[]): string {
-  return pointer(...keys);
 }

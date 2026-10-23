@@ -280,6 +280,24 @@ the contract is reported as a schema violation.
 | `2` | Usage error (unknown flag, unknown rule, missing argument) |
 | `3` | The document could not be read or parsed |
 
+## Use it as a library
+
+Everything the CLI does is available programmatically:
+
+```ts
+import { lint, loadSpecFile, startMockServer, compareGolden } from 'apicovenant';
+
+const spec = await loadSpecFile('openapi.yaml');
+const { findings } = lint(spec);
+
+const mock = await startMockServer(spec);
+console.log(mock.url);
+```
+
+The entry point exports the rule engine, the spec loader and model, the JSON
+Schema validator, the mock server, the recorder, the diff engine and the three
+reporters.
+
 ## How it is put together
 
 ```

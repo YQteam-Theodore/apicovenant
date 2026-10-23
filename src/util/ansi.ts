@@ -36,15 +36,7 @@ export function colorEnabled(stream: { isTTY?: boolean } = process.stdout): bool
   return Boolean(stream.isTTY);
 }
 
-let enabled = colorEnabled();
-
-export function setColorEnabled(value: boolean): void {
-  enabled = value;
-}
-
-export function isColorEnabled(): boolean {
-  return enabled;
-}
+const enabled = colorEnabled();
 
 export function style(text: string, ...names: StyleName[]): string {
   if (!enabled || names.length === 0) return text;

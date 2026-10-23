@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `src/index.ts` is now the real package entry point. The `exports` field
+  pointed at a file that did not exist, so `import ... from 'apicovenant'`
+  failed. The whole tool is now usable as a library: `lint`, `loadSpecFile`,
+  `startMockServer`, `startRecorder`, `compareGolden`, `diffJson` and the
+  reporters are all exported.
+- `examples/violations.openapi.yaml`, a fixture that breaks every convention
+  at once, plus `test/rules.test.ts` which asserts that **every rule fires on
+  at least one fixture**. Before this, 19 of the 42 rules were never exercised
+  by any test and could have been silently broken.
+
+### Fixed
+
+- The global `Response` type resolved to an empty interface under
+  `@types/node` without the DOM lib, so `fetch` responses had no `status`,
+  `headers` or `text`. `lib` now includes `DOM`.
+- The YAML parser registered an anchor under an `undefined` name when the
+  capture group was missing.
+- `typescript` is declared as `^5.8.0`: the `erasableSyntaxOnly` compiler
+  option used by the project does not exist in 5.6.
+- Removed 16 exported helpers that nothing referenced.
+
 ## [0.1.0] — 2026-10-23
 
 The first release. One CLI, four commands, zero runtime dependencies.

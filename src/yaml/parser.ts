@@ -212,6 +212,7 @@ class YamlParser {
       const match = /^&([^\s]+)\s*/.exec(value);
       if (!match) throw new YamlError('Invalid anchor', line.num, line.indent + 1);
       const name = match[1];
+      if (!name) throw new YamlError('Invalid anchor', line.num, line.indent + 1);
       const inner = value.slice(match[0].length).trim();
       const parsed = this.parseInlineValue(inner, indent, line);
       this.anchors.set(name, parsed);

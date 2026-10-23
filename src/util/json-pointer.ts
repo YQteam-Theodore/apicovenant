@@ -26,24 +26,6 @@ export function parsePointer(ptr: Pointer): string[] {
   return body.split('/').map(unescapeToken);
 }
 
-export function resolvePointer(doc: unknown, ptr: Pointer): unknown {
-  const tokens = parsePointer(ptr);
-  let current: unknown = doc;
-  for (const token of tokens) {
-    if (current === null || current === undefined) return undefined;
-    if (Array.isArray(current)) {
-      const index = Number(token);
-      if (!Number.isInteger(index)) return undefined;
-      current = current[index];
-    } else if (typeof current === 'object') {
-      current = (current as Record<string, unknown>)[token];
-    } else {
-      return undefined;
-    }
-  }
-  return current;
-}
-
 export function humanizePointer(ptr: Pointer): string {
   const tokens = parsePointer(ptr);
   if (tokens.length === 0) return '<root>';

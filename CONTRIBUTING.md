@@ -102,6 +102,24 @@ test('does the thing', () => {
 });
 ```
 
+### The example contracts
+
+`examples/` holds three OpenAPI documents that the test suite lints:
+
+| File | Purpose |
+| --- | --- |
+| `shop.openapi.yaml` | The reference contract. It must produce **zero** findings. |
+| `legacy.openapi.yaml` | A realistic but inconsistent API. It must produce errors. |
+| `violations.openapi.yaml` | A fixture that breaks every convention at once. |
+
+`test/rules.test.ts` asserts that **every rule fires on at least one of the
+three**. If you add a rule, extend a fixture so it fires — otherwise the rule
+can silently break without any test noticing.
+
+If a new rule fires on `shop.openapi.yaml`, either the rule is wrong or the
+reference contract needs updating. Decide deliberately and say why in the pull
+request.
+
 Two contracts are worth protecting:
 
 - `examples/shop.openapi.yaml` must produce **zero** findings. If a new rule

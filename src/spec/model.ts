@@ -1,7 +1,7 @@
 
 
 import { isPlainObject, toArray } from '../util/text.ts';
-import { deref, isRefNode, followRef } from './ref.ts';
+import { deref, followRef } from './ref.ts';
 
 export type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace';
 
@@ -306,14 +306,6 @@ export function buildSpec(raw: unknown, document = '<memory>'): ApiSpec {
     raw: doc,
     operations,
   };
-}
-
-export function expand(node: unknown): unknown {
-  return deref(node, node);
-}
-
-export function isUnresolvedRef(node: unknown): boolean {
-  return isRefNode(node);
 }
 
 export function componentSchemas(spec: ApiSpec): Record<string, unknown> {

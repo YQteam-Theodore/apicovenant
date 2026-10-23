@@ -79,7 +79,7 @@ test('resolves local references', () => {
 test('deref expands nested references but keeps recursive ones', () => {
   const spec = loadSpecFromText(MINIMAL, { document: 'test.yaml' });
   const expanded = deref(spec.raw, { $ref: '#/components/schemas/Thing' }) as {
-    properties: { parent: unknown };
+    properties: Record<string, unknown>;
   };
   assert.equal(expanded.properties['id'] !== undefined, true);
 

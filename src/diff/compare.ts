@@ -3,7 +3,6 @@
 import { compilePath } from '../mock/server.ts';
 import { validateSchema, type SchemaViolation } from '../spec/schema.ts';
 import { deref, followRef } from '../spec/ref.ts';
-import { isPlainObject } from '../util/text.ts';
 import type { ApiSpec, Operation } from '../spec/model.ts';
 import { diffJson, parseBody, type BodyDifference } from './json-diff.ts';
 import type { GoldenFile, GoldenInteraction } from '../record/golden.ts';
@@ -284,10 +283,6 @@ export async function compareGolden(
   };
 }
 
-export function hasBreakingChanges(report: DiffReport): boolean {
-  return report.summary.changed > 0 || report.summary.failed > 0;
-}
-
 export function summariseDifferences(interaction: InteractionDiff): string[] {
   const out: string[] = [];
   if (interaction.error) out.push(`request failed: ${interaction.error}`);
@@ -320,8 +315,4 @@ export function describeReport(report: DiffReport): string {
   if (report.summary.failed) parts.push(`${report.summary.failed} failed`);
   if (report.summary.skipped) parts.push(`${report.summary.skipped} skipped`);
   return parts.join(', ');
-}
-
-export function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  return isPlainObject(value);
 }

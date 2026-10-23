@@ -273,6 +273,23 @@ apicovenant diff --golden traffic.golden.json --spec examples/shop.openapi.yaml
 | `2` | 用法错误（未知参数、未知规则、缺少必填项） |
 | `3` | 文档读取或解析失败 |
 
+## 作为库使用
+
+CLI 能做的，程序里都能做：
+
+```ts
+import { lint, loadSpecFile, startMockServer, compareGolden } from 'apicovenant';
+
+const spec = await loadSpecFile('openapi.yaml');
+const { findings } = lint(spec);
+
+const mock = await startMockServer(spec);
+console.log(mock.url);
+```
+
+入口导出了规则引擎、规范加载器与模型、JSON Schema 校验器、mock 服务、录制器、
+差分引擎，以及三种报告渲染器。
+
 ## 项目结构
 
 ```

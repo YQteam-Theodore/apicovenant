@@ -9,18 +9,3 @@ export async function writeTextFile(filePath: string, contents: string): Promise
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, contents, 'utf8');
 }
-
-export async function pathExists(target: string): Promise<boolean> {
-  try {
-    await fs.access(target);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}

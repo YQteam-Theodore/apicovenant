@@ -120,9 +120,3 @@ export function refName(ref: string): string {
   const parts = ref.split('/');
   return parts[parts.length - 1] ?? ref;
 }
-
-export function refGroup(ref: string): string {
-  const parts = ref.split('/');
-  if (parts.length < 2) return '';
-  return parts[parts.length - 2] ?? '';
-}

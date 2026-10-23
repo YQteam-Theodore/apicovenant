@@ -22,7 +22,10 @@
     "apicovenant": "bin/apicovenant.mjs"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
   },
   "files": [
     "bin",
@@ -43,7 +46,7 @@
     "lint:self": "node bin/apicovenant.mjs lint examples/shop.openapi.yaml --format text"
   },
   "devDependencies": {
-    "typescript": "^5.6.0",
+    "typescript": "^5.8.0",
     "@types/node": "^22.7.0"
   },
   "repository": {
