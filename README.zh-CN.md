@@ -1,0 +1,291 @@
+# apicovenant
+
+> **OpenAPI 契约守卫。** 检查规范文档的设计约定、基于规范起一个 mock、录制真实流量、再对比下一个版本有没有改动契约 —— **零运行时依赖**。
+
+[![npm](https://img.shields.io/npm/v/apicovenant.svg)](https://www.npmjs.com/package/apicovenant)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![node](https://img.shields.io/badge/node-%3E%3D22.18-5FA04E.svg)](https://nodejs.org)
+[![dependencies](https://img.shields.io/badge/runtime%20dependencies-0-success.svg)](package.json)
+
+[English](README.md) · [简体中文](README.zh-CN.md)
+
+---
+
+## 问题在哪
+
+大多数团队都有一份 OpenAPI 文档，但真正让它保持诚实的团队不多。
+
+文档和实现之间会朝三个方向同时漂移：
+
+| 漂移类型 | 代价 |
+| --- | --- |
+| **设计漂移** —— 文档本身合法，但风格不一致：四种错误结构、两种分页方式、路径大小写各写各的 | 每个接入方都要写一套针对单个接口的适配 |
+| **规范漂移** —— 实现已经改了，文档没跟上 | 客户端照着没人实现的契约生成代码 |
+| **行为漂移** —— 重构之后接口返回的东西悄悄变了 | 线上事故，而测试一条都没拦住 |
+
+现有工具各自覆盖其中一块：schema linter 只检查文档**是否合法**，mock server **依据**文档应答，规范 diff 比较文档的**两个版本**。没有一个能把 **规范 → mock → 录制的真实流量 → 回归对比** 这条链路闭环。
+
+`apicovenant` 一条命令把四件事做完。
+
+## 它能做什么
+
+| 命令 | 作用 |
+| --- | --- |
+| `apicovenant lint` | 检查 **42 条设计约定规则**，这些规则是纯 schema 校验器根本不会看的 |
+| `apicovenant mock` | 基于规范起一个 mock 服务，响应体真实且可复现 |
+| `apicovenant record` | 在你的 API 前面放一个录制代理，把真实流量存成 **golden 文件** |
+| `apicovenant diff` | 重放 golden 文件，逐字段报告**行为漂移** |
+| `apicovenant rules` | 浏览完整规则目录 |
+
+## 为什么零依赖
+
+`apicovenant` 只依赖一个裸的 Node.js 环境。不需要 `npm install`，没有构建步骤，没有 `node_modules`，放进 CI 之前没有任何东西需要审查。
+
+代价是我们自己实现了一部分东西：YAML 子集解析器、JSON Schema 校验器、JSON Pointer 差分。收益是：
+
+- **没有供应链风险。** 整个工具就是这个仓库里的代码。
+- **没有安装步骤。** `node bin/apicovenant.mjs` 就是全部准备工作。
+- **启动极快。** 不用编译，没有缓存。
+- **源码可读。** 所有行为都在 `src/` 里，而不是散落在依赖树中。
+
+源码是 TypeScript，由 Node 原生的类型剥离直接执行，所以依然不需要构建步骤。
+
+## 安装
+
+```bash
+# 免安装直接运行
+npx apicovenant lint openapi.yaml
+
+# 或者全局安装
+npm install -g apicovenant
+apicovenant lint openapi.yaml
+```
+
+需要 **Node.js ≥ 22.18**（原生 TypeScript 执行能力）。源码是兼容 JavaScript 的 TypeScript；想跑静态检查可以执行 `npm run typecheck`（调用 `tsc --noEmit`）。
+
+## 快速开始
+
+```bash
+# 1. 检查契约
+apicovenant lint openapi.yaml
+
+# 2. 起一个 mock 用来开发
+apicovenant mock openapi.yaml --port 4010
+
+# 3. 录下真实 API 的实际行为
+apicovenant record --target http://localhost:3000 --out traffic.golden.json
+
+# 4. 发版前重放一遍，看看哪里变了
+apicovenant diff --golden traffic.golden.json --target http://localhost:3000
+```
+
+## Lint：设计约定检查
+
+```console
+$ apicovenant lint examples/legacy.openapi.yaml
+4 errors · 15 warnings · 17 info
+
+GET /create_stock_item
+
+  error   operation-id-required
+          GET /create_stock_item has no operationId
+          paths./create_stock_item.get
+          → Add a camelCase operationId such as "listUsers" or "createUser".
+
+GET /stock_items
+
+  error   response-status-valid
+          "20O" is not a valid HTTP status code in GET /stock_items
+          paths./stock_items.get.responses.20O
+          → Use a three digit status code or "default".
+```
+
+每条问题都带一个指向文档内部的 **JSON Pointer**，可以直接定位；而且差分引擎用的是同一套寻址方式。
+
+### 规则清单
+
+8 个分类共 42 条规则，完整说明见 [`docs/rules.md`](docs/rules.md)。
+
+| 分类 | 规则数 | 保护什么 |
+| --- | --- | --- |
+| `document` | 5 | 版本、联系方式、许可证、HTTPS 服务地址、标签声明 |
+| `operations` | 8 | `operationId` 身份、摘要、标签、HTTP 语义 |
+| `paths` | 5 | kebab-case、不出现动词、不带结尾斜杠、路径参数 |
+| `parameters` | 4 | 路径参数必填、重复定义、文档说明 |
+| `responses` | 8 | 成功响应、合法状态码、统一的错误结构 |
+| `schemas` | 7 | 命名一致性、未使用的组件、数组元素类型 |
+| `security` | 3 | 方案已声明、scope 已声明、凭据不放 query |
+| `pagination` | 2 | 统一分页模型、统一集合外层结构 |
+
+几个 schema 校验器**永远不会告诉你的**检查：
+
+- `response-error-envelope` —— 所有失败响应必须用同一个错误结构
+- `operation-id-naming` —— `operationId` 要是 camelCase 且以动词开头
+- `pagination-consistency` —— 一个接口用 `limit/offset`，另一个用 `cursor`
+- `schema-property-naming-consistency` —— 整个 API 不要混用 `camelCase` 和 `snake_case`
+- `path-no-verbs` —— `/createUser` 把同一件事说了两遍
+- `security-in-query` —— query string 里的 API key 会漏进访问日志
+
+### 报告格式
+
+```bash
+apicovenant lint openapi.yaml --format json --output report.json
+apicovenant lint openapi.yaml --format html --output report.html
+```
+
+HTML 报告是**单个自包含文件** —— 没有 CDN、没有外部字体、没有第三方脚本，可以直接作为 CI 产物上传，或者提交进仓库。
+
+### 挑选规则
+
+```bash
+# 只跑你关心的规则
+apicovenant lint openapi.yaml --rules operation-id-required,response-error-envelope
+
+# 关掉太吵的规则
+apicovenant lint openapi.yaml --ignore schema-example-recommended,info-license-required
+
+# 只看错误
+apicovenant lint openapi.yaml --severity error
+```
+
+## Mock：从规范生成服务
+
+```console
+$ apicovenant mock examples/shop.openapi.yaml --port 4010
+▶ Shop API v1.4.0 mocking examples/shop.openapi.yaml
+
+  listening on  http://127.0.0.1:4010
+  routes        11 operations
+  route table   http://127.0.0.1:4010/_apicovenant/routes
+
+  GET     /users
+  GET     /users/{userId}
+  POST    /users
+  ...
+```
+
+有 example 就用 example，没有就从 schema **确定性地生成** —— 所以同一份规范跑两次 mock，返回的字节完全一致。
+
+```bash
+# 强制指定状态码
+curl 'http://127.0.0.1:4010/users?x-mock-status=404'
+
+# 查看路由表
+curl http://127.0.0.1:4010/_apicovenant/routes
+```
+
+## 录制与对比
+
+这一部分回答的是「**我这次改动有没有把 API 改坏？**」
+
+```console
+$ apicovenant record --target http://localhost:3000 --out traffic.golden.json
+▶ recording http://localhost:3000
+
+  proxy   http://127.0.0.1:4011
+  output  traffic.golden.json
+
+  point your client at the proxy, then press Ctrl+C to stop
+```
+
+golden 文件刻意做成很朴素的 JSON，方便在 PR 里 review：
+
+```json
+{
+  "apicovenant": 1,
+  "recordedAt": "2026-10-23T18:04:11.204Z",
+  "target": "http://localhost:3000",
+  "spec": "examples/shop.openapi.yaml",
+  "interactions": [
+    {
+      "method": "GET",
+      "path": "/users",
+      "query": { "page": "1" },
+      "status": 200,
+      "bodyType": "json",
+      "body": "{\"items\":[...],\"total\":1}"
+    }
+  ]
+}
+```
+
+**凭据在落盘之前就被脱敏。**
+
+然后重放：
+
+```console
+$ apicovenant diff --golden traffic.golden.json --target http://localhost:3000
+contract diff
+  golden  traffic.golden.json
+  source  http://localhost:3000
+
+1 changed · 4 unchanged
+
+✖ GET /users
+  • status changed 200 → 500
+  • body changed in 2 places (first: changed /items/0/total)
+      total changed 42 → 0
+      items changed 1 → 0
+
+✓ GET /users/usr_1001
+
+✖ the contract drifted — 1 changed, 4 unchanged
+```
+
+默认很保守：**只重放安全方法**，所以跑一次 diff 不会在目标系统里造数据。确实需要重放 `POST`、`PUT`、`PATCH`、`DELETE` 时再加 `--replay-all`。
+
+也可以直接跟 mock 对比：
+
+```bash
+apicovenant diff --golden traffic.golden.json --spec examples/shop.openapi.yaml
+```
+
+带上 spec 时，新的响应还会**按文档 schema 做校验**，所以「还能解析但已经不符合契约」的响应会被报成 schema 违规。
+
+## 接入 CI
+
+```yaml
+- name: 检查 API 契约
+  run: |
+    npx apicovenant lint openapi.yaml --fail-on error
+    npx apicovenant diff --golden traffic.golden.json --target "$API_URL"
+```
+
+### 退出码
+
+| 退出码 | 含义 |
+| --- | --- |
+| `0` | 成功 |
+| `1` | 存在超过阈值的问题，或者契约发生漂移 |
+| `2` | 用法错误（未知参数、未知规则、缺少必填项） |
+| `3` | 文档读取或解析失败 |
+
+## 项目结构
+
+```
+src/
+  yaml/        YAML 1.2 子集解析器（零依赖）
+  spec/        加载器、$ref 解析、规范化操作模型
+  lint/        规则引擎 + 规则目录
+  mock/        基于规范驱动的 mock 服务
+  record/      录制代理 + golden 文件格式
+  diff/        带 JSON Pointer 路径的契约差分
+  report/      终端、JSON、独立 HTML 报告
+  cli/         参数解析与命令分发
+```
+
+linter、mock server 和 recorder 都基于**同一份**规范化模型工作，因此它们对「一个 operation 是什么」的理解永远一致。
+
+## 参与贡献
+
+欢迎贡献 —— 流程、代码风格以及如何新增一条规则，见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+```bash
+git clone https://github.com/apicovenant/apicovenant.git
+cd apicovenant
+node --test
+```
+
+## 许可证
+
+[MIT](LICENSE) © apicovenant contributors

@@ -1,0 +1,55 @@
+{
+  "name": "apicovenant",
+  "version": "0.1.0",
+  "description": "Zero-dependency OpenAPI contract guardian: lint design conventions, mock from spec, record real traffic, and diff behavior across releases.",
+  "keywords": [
+    "openapi",
+    "swagger",
+    "api-contract",
+    "linter",
+    "mock-server",
+    "contract-testing",
+    "regression",
+    "cli",
+    "zero-dependency"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "bin": {
+    "apicovenant": "bin/apicovenant.mjs"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node bin/apicovenant.mjs",
+    "test": "node --test",
+    "test:watch": "node --test --watch",
+    "coverage": "node --test --experimental-test-coverage",
+    "typecheck": "tsc --noEmit",
+    "lint:self": "node bin/apicovenant.mjs lint examples/shop.openapi.yaml --format text"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "@types/node": "^22.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apicovenant/apicovenant.git"
+  },
+  "bugs": {
+    "url": "https://github.com/apicovenant/apicovenant/issues"
+  },
+  "homepage": "https://github.com/apicovenant/apicovenant#readme"
+}

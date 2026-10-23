@@ -1,0 +1,57 @@
+/** Helpers shared by the CLI commands. */
+
+import { loadSpecFile, loadSpecFromStdin, SpecError } from '../spec/loader.ts';
+import type { ApiSpec } from '../spec/model.ts';
+import type { Severity } from '../lint/types.ts';
+
+export class UsageError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UsageError';
+  }
+}
+
+/** Load a spec from a file path, or from stdin when the path is "-". */
+export async function loadSpec(document: string): Promise<ApiSpec> {
+  if (!document) {
+    throw new UsageError('no OpenAPI document given');
+  }
+  if (document === '-') {
+    return loadSpecFromStdin();
+  }
+  return loadSpecFile(document);
+}
+
+/** Split a comma separated list into trimmed, non empty entries. */
+export function splitList(value: string | undefined): string[] {
+  if (!value) return [];
+  return value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+}
+
+export function parseSeverity(value: string | undefined, fallback: Severity): Severity {
+  if (!value) return fallback;
+  const lowered = value.toLowerCase();
+  if (lowered === 'error' || lowered === 'warn' || lowered === 'warning' || lowered === 'info') {
+    return lowered === 'warning' ? 'warn' : lowered;
+  }
+  throw new UsageError(`invalid severity "${value}" (expected error, warn or info)`);
+}
+
+export function parseInteger(value: string | undefined, fallback: number, label: string): number {
+  if (value === undefined) return fallback;
+  const parsed = Number.parseInt(value, 10);
+  if (Number.isNaN(parsed)) {
+    throw new UsageError(`invalid ${label} "${value}" (expected a number)`);
+  }
+  return parsed;
+}
+
+/** Turn a spec error into a friendly message. */
+export function describeError(error: unknown): string {
+  if (error instanceof SpecError) return error.message;
+  if (error instanceof UsageError) return error.message;
+  return (error as Error).message ?? String(error);
+}

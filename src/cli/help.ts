@@ -1,0 +1,130 @@
+/**
+ * Help texts for the command line interface.
+ */
+
+export const MAIN_HELP = `apicovenant — an OpenAPI contract guardian
+
+Usage:
+  apicovenant <command> [options]
+
+Commands:
+  lint <spec>        Check the design conventions of an OpenAPI document
+  mock <spec>        Serve a mock API generated from an OpenAPI document
+  record             Record real traffic into a golden file
+  diff               Replay a golden file against a live API and report drift
+  rules              Show the catalogue of lint rules
+
+Options:
+  -h, --help         Show this help
+  -v, --version      Show the version
+
+Run "apicovenant <command> --help" for command specific options.
+`;
+
+export const LINT_HELP = `apicovenant lint — check the design conventions of an OpenAPI document
+
+Usage:
+  apicovenant lint <spec> [options]
+
+Arguments:
+  <spec>             Path to an OpenAPI document (YAML or JSON). Use "-" to read stdin.
+
+Options:
+  --format <fmt>      Report format: text (default), json or html
+  --output <file>     Write the report to a file instead of stdout
+  --rules <ids>       Comma separated list of rules to run exclusively
+  --ignore <ids>      Comma separated list of rules to skip
+  --severity <level>  Minimum severity to report: error, warn or info (default: info)
+  --fail-on <level>   Exit with code 1 when findings of this level or worse exist
+                       (error, warn or never; default: error)
+  --list-rules        Print the rule catalogue instead of running the linter
+  -h, --help          Show this help
+
+Examples:
+  apicovenant lint openapi.yaml
+  apicovenant lint openapi.yaml --format json --output report.json
+  apicovenant lint openapi.yaml --ignore schema-example-recommended,info-license-required
+  apicovenant lint openapi.yaml --rules operation-id-required --fail-on warn
+`;
+
+export const MOCK_HELP = `apicovenant mock — serve a mock API generated from an OpenAPI document
+
+Usage:
+  apicovenant mock <spec> [options]
+
+Arguments:
+  <spec>             Path to an OpenAPI document (YAML or JSON)
+
+Options:
+  --port <n>          Port to listen on (default: a free random port)
+  --host <host>       Host to bind to (default: 127.0.0.1)
+  --latency <ms>      Artificial latency added to every response
+  -h, --help          Show this help
+
+Notes:
+  The mock answers from the documented schemas. Request "?x-mock-status=404"
+  to force a specific status code, and GET /_apicovenant/routes for the
+  route table.
+
+Examples:
+  apicovenant mock openapi.yaml --port 4010
+`;
+
+export const RECORD_HELP = `apicovenant record — record real traffic into a golden file
+
+Usage:
+  apicovenant record --target <url> --out <file> [options]
+
+Options:
+  --target <url>      Base URL of the API to record (required)
+  --out <file>        Where to write the golden file (required)
+  --spec <file>       OpenAPI document to remember in the golden file
+  --port <n>          Port the recording proxy listens on (default: free random port)
+  --max-requests <n>  Stop after this many requests
+  --duration <sec>    Stop after this many seconds
+  -h, --help          Show this help
+
+Notes:
+  Credentials are redacted before the exchange is written to disk.
+
+Examples:
+  apicovenant record --target http://localhost:3000 --out traffic.golden.json
+`;
+
+export const DIFF_HELP = `apicovenant diff — replay a golden file and report contract drift
+
+Usage:
+  apicovenant diff --golden <file> [--target <url> | --spec <file>] [options]
+
+Options:
+  --golden <file>     Golden file to replay (required)
+  --target <url>      Base URL of the live API to compare against
+  --spec <file>       Compare against a mock generated from this OpenAPI document
+  --format <fmt>      Report format: text (default) or json
+  --replay-all        Also replay unsafe methods (POST, PUT, PATCH, DELETE)
+  --fail-on <level>   Exit with code 1 when the contract drifted (changed or never)
+  -h, --help          Show this help
+
+Notes:
+  By default only safe methods are replayed, so running a diff never creates
+  data on the target system.
+
+Examples:
+  apicovenant diff --golden traffic.golden.json --target http://localhost:3000
+  apicovenant diff --golden traffic.golden.json --spec openapi.yaml
+`;
+
+export const RULES_HELP = `apicovenant rules — show the catalogue of lint rules
+
+Usage:
+  apicovenant rules [options]
+
+Options:
+  --format <fmt>      Output format: text (default) or json
+  --category <name>   Only show rules of this category
+  -h, --help          Show this help
+
+Examples:
+  apicovenant rules
+  apicovenant rules --category responses --format json
+`;
