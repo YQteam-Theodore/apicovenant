@@ -1,6 +1,4 @@
-/**
- * Pagination rules: collection endpoints must agree on how they page.
- */
+
 
 import type { RuleDefinition } from '../types.ts';
 import { isPlainObject } from '../../util/text.ts';
@@ -18,7 +16,6 @@ function detectStyle(parameterNames: string[]): Style {
   return 'none';
 }
 
-/** True when the path addresses a collection of resources. */
 function isCollectionPath(path: string): boolean {
   const segments = path.split('/').filter(Boolean);
   const last = segments[segments.length - 1];
@@ -99,7 +96,7 @@ export const paginationEnvelope: RuleDefinition = {
       if (!isPlainObject(schema)) continue;
 
       const type = schema['type'];
-      if (type === 'array') continue; // a bare array is a valid, if minimal, envelope
+      if (type === 'array') continue;
 
       const properties = isPlainObject(schema['properties']) ? schema['properties'] : {};
       const names = Object.keys(properties);

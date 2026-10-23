@@ -82,7 +82,7 @@ test('deref expands nested references but keeps recursive ones', () => {
     properties: { parent: unknown };
   };
   assert.equal(expanded.properties['id'] !== undefined, true);
-  // The recursive reference stays a reference instead of looping forever.
+
   assert.equal(isRefNode(expanded.properties['parent']), true);
 });
 

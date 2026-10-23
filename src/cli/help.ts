@@ -1,6 +1,4 @@
-/**
- * Help texts for the command line interface.
- */
+
 
 export const MAIN_HELP = `apicovenant — an OpenAPI contract guardian
 

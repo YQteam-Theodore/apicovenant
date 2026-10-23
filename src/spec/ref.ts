@@ -1,22 +1,14 @@
-/**
- * `$ref` handling for OpenAPI documents.
- *
- * References are resolved lazily against the owning document. Recursive
- * schemas are common in real specs (`Category.parent -> Category`), so the
- * resolver is cycle aware: a reference that would loop is left in place as a
- * `{ $ref }` node instead of expanding forever.
- */
+
 
 import { isPlainObject } from '../util/text.ts';
 
 export interface DerefOptions {
-  /** Maximum depth to expand before giving up and leaving the `$ref` in place. */
+
   maxDepth?: number;
-  /** Leave `{ $ref }` nodes untouched. */
+
   shallow?: boolean;
 }
 
-/** Resolve a local JSON Pointer reference such as `#/components/schemas/User`. */
 export function resolveLocalRef(doc: unknown, ref: string): unknown {
   if (ref === '#' || ref === '#/') return doc;
   if (!ref.startsWith('#/')) {
@@ -42,29 +34,16 @@ export function resolveLocalRef(doc: unknown, ref: string): unknown {
   return current;
 }
 
-/** True when the node is a `{ $ref: string }` object. */
 export function isRefNode(node: unknown): node is { $ref: string } {
   return isPlainObject(node) && typeof node['$ref'] === 'string';
 }
 
-/**
- * Resolve a single level of `$ref`.
- *
- * Sibling keys next to `$ref` are ignored, matching the OpenAPI 3.0 rules.
- */
 export function resolveRefOnce(doc: unknown, node: unknown): unknown {
   if (!isRefNode(node)) return node;
   const resolved = resolveLocalRef(doc, node.$ref);
   return resolved === undefined ? node : resolved;
 }
 
-/**
- * Expand every `$ref` inside `node`.
- *
- * @param doc the document that owns the references
- * @param node the subtree to expand
- * @param options expansion limits
- */
 export function deref(doc: unknown, node: unknown, options: DerefOptions = {}): unknown {
   const maxDepth = options.maxDepth ?? 40;
   const seen = new Set<string>();
@@ -73,7 +52,7 @@ export function deref(doc: unknown, node: unknown, options: DerefOptions = {}): 
     if (depth > maxDepth) return current;
 
     if (isRefNode(current)) {
-      if (seen.has(current.$ref)) return current; // recursive reference: keep the pointer
+      if (seen.has(current.$ref)) return current;
       const resolved = resolveLocalRef(doc, current.$ref);
       if (resolved === undefined) return current;
       seen.add(current.$ref);
@@ -111,12 +90,6 @@ export function deref(doc: unknown, node: unknown, options: DerefOptions = {}): 
   return walk(node, 0);
 }
 
-/**
- * Follow a chain of `$ref`s until a concrete node is reached.
- *
- * Used by rules that only need the final target (for example "does this
- * response use the shared error schema?").
- */
 export function followRef(doc: unknown, node: unknown, maxHops = 20): unknown {
   let current = node;
   for (let i = 0; i < maxHops; i += 1) {
@@ -128,7 +101,6 @@ export function followRef(doc: unknown, node: unknown, maxHops = 20): unknown {
   return current;
 }
 
-/** Collect every `$ref` string used inside a subtree. */
 export function collectRefs(node: unknown, out: Set<string> = new Set<string>()): Set<string> {
   if (isRefNode(node)) {
     out.add(node.$ref);
@@ -144,13 +116,11 @@ export function collectRefs(node: unknown, out: Set<string> = new Set<string>())
   return out;
 }
 
-/** The name of the component a `$ref` points at, e.g. `User` for `#/components/schemas/User`. */
 export function refName(ref: string): string {
   const parts = ref.split('/');
   return parts[parts.length - 1] ?? ref;
 }
 
-/** The component group a `$ref` points at, e.g. `schemas` for `#/components/schemas/User`. */
 export function refGroup(ref: string): string {
   const parts = ref.split('/');
   if (parts.length < 2) return '';

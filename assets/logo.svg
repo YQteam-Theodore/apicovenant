@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="apicovenant">
+  <defs>
+    <linearGradient id="ac" gradientUnits="userSpaceOnUse" x1="96" y1="96" x2="416" y2="444">
+      <stop offset="0%" stop-color="#5A7CFF"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#ac)" stroke-width="30" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M256 96 L400 142 V252 C400 330 340 396 256 444 C172 396 112 330 112 252 V142 Z"/>
+  </g>
+  <g stroke="url(#ac)" stroke-width="26" stroke-linecap="round" fill="none">
+    <path d="M256 158 V346"/>
+    <path d="M256 252 H324"/>
+  </g>
+  <g fill="url(#ac)">
+    <circle cx="256" cy="158" r="21"/>
+    <circle cx="324" cy="252" r="21"/>
+  </g>
+</svg>

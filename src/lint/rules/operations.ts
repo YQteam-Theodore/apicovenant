@@ -1,6 +1,4 @@
-/**
- * Operation level rules: identity, documentation and tagging.
- */
+
 
 import type { RuleDefinition } from '../types.ts';
 

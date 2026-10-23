@@ -1,6 +1,4 @@
-/**
- * Loading and validating OpenAPI documents.
- */
+
 
 import path from 'node:path';
 
@@ -20,18 +18,16 @@ export class SpecError extends Error {
 }
 
 export interface LoadOptions {
-  /** Path used in error messages. */
+
   document?: string;
-  /** Force a parser instead of detecting it from the file extension. */
+
   format?: 'yaml' | 'json';
 }
 
-/** Parse raw document text into a plain object. */
 export function parseDocument(text: string, options: LoadOptions = {}): unknown {
   const file = options.document ?? '';
   const format = options.format ?? detectFormat(file);
-  // Windows editors love to add a byte order mark; it is not part of the
-  // document and would otherwise break the very first key.
+
   const source = text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
 
   try {
@@ -56,12 +52,6 @@ export function detectFormat(file: string): 'yaml' | 'json' {
   return ext === '.json' ? 'json' : 'yaml';
 }
 
-/**
- * Structural checks that a document must pass before any rule runs.
- *
- * These are intentionally shallow: `apicovenant` is a design linter, not a
- * replacement for a full JSON Schema validator for the OpenAPI meta-schema.
- */
 export function validateDocument(doc: unknown, file = ''): void {
   if (!isPlainObject(doc)) {
     throw new SpecError('document root must be a mapping', file);
@@ -84,20 +74,17 @@ export function validateDocument(doc: unknown, file = ''): void {
   }
 }
 
-/** Parse, validate and normalize an OpenAPI document. */
 export function loadSpecFromText(text: string, options: LoadOptions = {}): ApiSpec {
   const doc = parseDocument(text, options);
   validateDocument(doc, options.document ?? '');
   return buildSpec(doc, options.document ?? '<memory>');
 }
 
-/** Load an OpenAPI document from disk. */
 export async function loadSpecFile(filePath: string): Promise<ApiSpec> {
   const text = await readTextFile(filePath);
   return loadSpecFromText(text, { document: filePath });
 }
 
-/** Load an OpenAPI document from standard input. */
 export async function loadSpecFromStdin(): Promise<ApiSpec> {
   const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) chunks.push(chunk as Buffer);

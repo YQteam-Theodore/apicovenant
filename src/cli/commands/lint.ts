@@ -1,4 +1,4 @@
-/** `apicovenant lint` — run the design convention rules. */
+
 
 import { writeTextFile } from '../../util/fs.ts';
 import { lint, allRules, findRule } from '../../lint/engine.ts';
@@ -17,7 +17,7 @@ export interface LintCommandOptions {
   ignore?: string[];
   severity: Severity;
   failOn: 'error' | 'warn' | 'never';
-  /** Print the rule catalogue instead of running the linter. */
+
   listRules?: boolean;
 }
 
@@ -84,7 +84,6 @@ export async function runLint(options: LintCommandOptions): Promise<number> {
   return 0;
 }
 
-/** Print the rule catalogue. */
 export function renderRuleCatalogue(category?: string, format: 'text' | 'json' = 'text'): string {
   const rules = [...allRules()].sort((a, b) => a.id.localeCompare(b.id));
   const selected = category ? rules.filter((rule) => rule.category === category) : rules;

@@ -1,10 +1,4 @@
-/**
- * Traffic recorder.
- *
- * `apicovenant record` puts a recording proxy in front of a running API. Point
- * your client at the proxy, exercise the endpoints you care about, and the
- * exchange is captured as a golden file that can be replayed later.
- */
+
 
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -12,37 +6,36 @@ import type { AddressInfo } from 'node:net';
 import { createGoldenFile, type GoldenFile, type GoldenInteraction } from './golden.ts';
 
 export interface RecorderOptions {
-  /** Base URL of the API to record against. */
+
   target: string;
-  /** Path of the OpenAPI document, stored in the golden file. */
+
   spec?: string;
   host?: string;
   port?: number;
-  /** Stop after this many interactions. */
+
   maxRequests?: number;
-  /** Stop after this many milliseconds. */
+
   durationMs?: number;
-  /** Called for every recorded interaction. */
+
   onInteraction?: (interaction: GoldenInteraction) => void;
-  /** Called when the recording limit is reached. */
+
   onComplete?: () => void;
-  /** Request headers that must never be written to disk. */
+
   redactHeaders?: string[];
 }
 
 export interface RecorderHandle {
-  /** URL the proxy listens on. */
+
   url: string;
   port: number;
-  /** Number of interactions captured so far. */
+
   count(): number;
-  /** Stop recording and return the golden file. */
+
   stop(): GoldenFile;
 }
 
 const DEFAULT_REDACT = ['authorization', 'cookie', 'set-cookie', 'x-api-key', 'proxy-authorization'];
 
-/** Start the recording proxy. */
 export async function startRecorder(options: RecorderOptions): Promise<RecorderHandle> {
   const target = options.target.replace(/\/+$/, '');
   const host = options.host ?? '127.0.0.1';

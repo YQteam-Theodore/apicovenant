@@ -84,7 +84,6 @@ test('recording captures traffic and the diff finds no drift', async () => {
   assert.equal(golden.interactions[0]?.path, '/users');
   assert.equal(golden.interactions[0]?.status, 200);
 
-  // Replay against a fresh mock of the same spec: nothing should have drifted.
   const second = await startMockServer(spec);
   const report = await compareGolden(golden, new HttpLiveSource(second.url), { spec });
   await second.close();

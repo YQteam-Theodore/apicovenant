@@ -1,9 +1,4 @@
-/**
- * The rule registry.
- *
- * Every rule shipped with `apicovenant` is registered here. The order of this
- * array is the order in which rules are documented and executed.
- */
+
 
 import type { RuleDefinition } from '../types.ts';
 import { operationRules } from './operations.ts';

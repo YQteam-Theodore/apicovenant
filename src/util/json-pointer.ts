@@ -1,10 +1,4 @@
-/**
- * RFC 6901 JSON Pointer helpers.
- *
- * Every finding produced by the linter, every schema validation error and every
- * body difference in a contract diff is addressed by a JSON Pointer, so the
- * same addressing scheme works across all three subsystems.
- */
+
 
 export type Pointer = string;
 
@@ -50,7 +44,6 @@ export function resolvePointer(doc: unknown, ptr: Pointer): unknown {
   return current;
 }
 
-/** Human friendly rendering of a pointer for terminal output. */
 export function humanizePointer(ptr: Pointer): string {
   const tokens = parsePointer(ptr);
   if (tokens.length === 0) return '<root>';

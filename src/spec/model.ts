@@ -1,10 +1,4 @@
-/**
- * The normalized view of an OpenAPI document.
- *
- * The linter, the mock server and the recorder all operate on this model
- * instead of walking raw JSON, which keeps every subsystem working against the
- * same understanding of "an operation" and "a response".
- */
+
 
 import { isPlainObject, toArray } from '../util/text.ts';
 import { deref, isRefNode, followRef } from './ref.ts';
@@ -87,7 +81,7 @@ export interface Operation {
   servers: Server[];
   raw: Record<string, unknown>;
   pointer: string;
-  /** `"GET /users/{id}"` — used as a stable human readable identifier. */
+
   key: string;
 }
 
@@ -102,9 +96,9 @@ export interface PathItem {
 }
 
 export interface ApiSpec {
-  /** Where the document came from (file path or `<stdin>`). */
+
   document: string;
-  /** Declared OpenAPI version, e.g. `3.1.0`. */
+
   version: string;
   info: SpecInfo;
   servers: Server[];
@@ -113,7 +107,7 @@ export interface ApiSpec {
   globalSecurity: Array<Record<string, string[]>>;
   tags: Array<{ name: string; description?: string }>;
   raw: Record<string, unknown>;
-  /** All operations in document order. */
+
   operations: Operation[];
 }
 
@@ -196,7 +190,6 @@ function buildSecurity(raw: unknown): Array<Record<string, string[]>> {
     });
 }
 
-/** Build the normalized model from a raw OpenAPI document. */
 export function buildSpec(raw: unknown, document = '<memory>'): ApiSpec {
   const doc = asRecord(raw);
   const infoRaw = asRecord(doc['info']);
@@ -315,23 +308,19 @@ export function buildSpec(raw: unknown, document = '<memory>'): ApiSpec {
   };
 }
 
-/** Expand `$ref`s in a subtree of the spec document. */
 export function expand(node: unknown): unknown {
   return deref(node, node);
 }
 
-/** True when the node is still an unresolved `$ref`. */
 export function isUnresolvedRef(node: unknown): boolean {
   return isRefNode(node);
 }
 
-/** All schemas declared under `components.schemas`. */
 export function componentSchemas(spec: ApiSpec): Record<string, unknown> {
   const schemas = spec.components['schemas'];
   return isPlainObject(schemas) ? schemas : {};
 }
 
-/** All security schemes declared under `components.securitySchemes`. */
 export function securitySchemes(spec: ApiSpec): Record<string, Record<string, unknown>> {
   const schemes = spec.components['securitySchemes'];
   const out: Record<string, Record<string, unknown>> = {};

@@ -1,12 +1,9 @@
-/**
- * Security related rules.
- */
+
 
 import type { RuleDefinition } from '../types.ts';
 import { securitySchemes } from '../../spec/model.ts';
 import { isPlainObject } from '../../util/text.ts';
 
-/** Endpoints that are commonly public and therefore need no credential. */
 const PUBLIC_PATH_HINTS = ['/health', '/healthz', '/livez', '/readyz', '/status', '/version', '/login', '/oauth', '/register', '/signup', '/public'];
 
 export const securityRequirementDefined: RuleDefinition = {

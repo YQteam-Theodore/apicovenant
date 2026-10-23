@@ -1,10 +1,4 @@
-/**
- * A spec driven mock server.
- *
- * It answers requests from the OpenAPI document: routes are matched against
- * the path templates, the response is selected from the documented status
- * codes and the body is produced from the documented schema.
- */
+
 
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -20,9 +14,9 @@ export interface RouteMatch {
 export interface MockServerOptions {
   host?: string;
   port?: number;
-  /** Simulated latency for every response, in milliseconds. */
+
   latency?: number;
-  /** Extra delay applied to error responses, in milliseconds. */
+
   errorLatency?: number;
 }
 
@@ -39,7 +33,6 @@ interface CompiledRoute {
   paramNames: string[];
 }
 
-/** Translate a path template into a regular expression. */
 export function compilePath(template: string): { regex: RegExp; paramNames: string[] } {
   const paramNames: string[] = [];
   const pattern = template
@@ -55,7 +48,6 @@ export function compilePath(template: string): { regex: RegExp; paramNames: stri
   return { regex: new RegExp(`^${pattern}/?$`), paramNames };
 }
 
-/** Find the operation that answers a request. */
 export function matchRoute(routes: CompiledRoute[], method: string, pathname: string): RouteMatch | undefined {
   const upper = method.toUpperCase();
   let pathMatched = false;
@@ -74,7 +66,7 @@ export function matchRoute(routes: CompiledRoute[], method: string, pathname: st
   }
 
   if (pathMatched) {
-    // The path exists but not with this method.
+
     for (const route of routes) {
       if (!route.regex.test(pathname)) continue;
       return {
@@ -91,7 +83,6 @@ export function matchRoute(routes: CompiledRoute[], method: string, pathname: st
   return undefined;
 }
 
-/** Start the mock server. */
 export async function startMockServer(spec: ApiSpec, options: MockServerOptions = {}): Promise<MockServerHandle> {
   const host = options.host ?? '127.0.0.1';
   const port = options.port ?? 0;
@@ -137,7 +128,6 @@ async function handleRequest(
   const url = new URL(request.url ?? '/', `http://${request.headers.host ?? 'localhost'}`);
   const pathname = url.pathname;
 
-  // Introspection endpoint: shows which routes the mock understands.
   if (pathname === '/_apicovenant/routes') {
     const body = JSON.stringify(
       {

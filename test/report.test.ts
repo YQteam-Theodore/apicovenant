@@ -50,8 +50,7 @@ test('every HTML row carries its severity in a data attribute', () => {
 
   assert.match(html, /data-severity="error"/);
   assert.match(html, /data-severity="info"/);
-  // The filter must read the severity from the data attribute, because a
-  // hidden row also carries the "hidden" class.
+
   assert.match(html, /getAttribute\('data-severity'\)/);
   assert.equal(/replace\('severity-'/.test(html), false);
 });

@@ -1,37 +1,32 @@
-/**
- * The golden file: a recorded snapshot of real API traffic.
- *
- * The format is intentionally boring JSON so it can be reviewed in a pull
- * request, diffed with `git diff` and understood without any tooling.
- */
+
 
 export const GOLDEN_FORMAT_VERSION = 1;
 
 export interface GoldenInteraction {
   method: string;
-  /** Path without the query string, e.g. `/users/usr_1001`. */
+
   path: string;
-  /** Query parameters as recorded. */
+
   query: Record<string, string>;
   requestHeaders: Record<string, string>;
   status: number;
   responseHeaders: Record<string, string>;
-  /** Raw response body. */
+
   body: string;
-  /** How the body should be interpreted. */
+
   bodyType: 'json' | 'text' | 'empty';
-  /** Round trip duration in milliseconds. */
+
   durationMs: number;
 }
 
 export interface GoldenFile {
-  /** Format version, so future releases can migrate old files. */
+
   apicovenant: number;
-  /** ISO timestamp of the recording. */
+
   recordedAt: string;
-  /** The base URL the traffic was recorded against. */
+
   target: string;
-  /** Optional pointer to the OpenAPI document the traffic belongs to. */
+
   spec?: string;
   interactions: GoldenInteraction[];
 }
@@ -46,7 +41,6 @@ export function createGoldenFile(target: string, spec?: string): GoldenFile {
   };
 }
 
-/** Parse a golden file, validating the parts that matter. */
 export function parseGoldenFile(text: string): GoldenFile {
   let parsed: unknown;
   try {
@@ -88,12 +82,10 @@ export function parseGoldenFile(text: string): GoldenFile {
   };
 }
 
-/** Serialise a golden file with stable formatting. */
 export function serializeGoldenFile(file: GoldenFile): string {
   return `${JSON.stringify(file, null, 2)}\n`;
 }
 
-/** A stable identifier for an interaction inside a golden file. */
 export function interactionKey(interaction: { method: string; path: string; query?: Record<string, string> }): string {
   const query = Object.keys(interaction.query ?? {})
     .sort()

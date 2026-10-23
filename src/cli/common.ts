@@ -1,4 +1,4 @@
-/** Helpers shared by the CLI commands. */
+
 
 import { loadSpecFile, loadSpecFromStdin, SpecError } from '../spec/loader.ts';
 import type { ApiSpec } from '../spec/model.ts';
@@ -11,7 +11,6 @@ export class UsageError extends Error {
   }
 }
 
-/** Load a spec from a file path, or from stdin when the path is "-". */
 export async function loadSpec(document: string): Promise<ApiSpec> {
   if (!document) {
     throw new UsageError('no OpenAPI document given');
@@ -22,7 +21,6 @@ export async function loadSpec(document: string): Promise<ApiSpec> {
   return loadSpecFile(document);
 }
 
-/** Split a comma separated list into trimmed, non empty entries. */
 export function splitList(value: string | undefined): string[] {
   if (!value) return [];
   return value
@@ -49,7 +47,6 @@ export function parseInteger(value: string | undefined, fallback: number, label:
   return parsed;
 }
 
-/** Turn a spec error into a friendly message. */
 export function describeError(error: unknown): string {
   if (error instanceof SpecError) return error.message;
   if (error instanceof UsageError) return error.message;

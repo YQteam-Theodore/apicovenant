@@ -1,10 +1,4 @@
-/**
- * Response generation for the mock server.
- *
- * The generator prefers, in order: an explicit `x-mock` override on the
- * operation, a media type `example`, a schema `example`, and finally a
- * deterministic payload derived from the schema itself.
- */
+
 
 import { generateExample } from '../spec/schema.ts';
 import { deref, followRef } from '../spec/ref.ts';
@@ -19,13 +13,12 @@ export interface MockPayload {
 }
 
 export interface GenerateOptions {
-  /** Status code requested by the caller. */
+
   status?: number;
-  /** Simulated latency in milliseconds. */
+
   latency?: number;
 }
 
-/** Find the response definition that should answer a request. */
 export function selectResponse(spec: ApiSpec, operation: Operation, requestedStatus?: number): Response | undefined {
   const responses = [...operation.responses.values()];
 
@@ -49,16 +42,12 @@ export function selectResponse(spec: ApiSpec, operation: Operation, requestedSta
   return fallback ?? responses[0];
 }
 
-/** Build the payload the mock server should answer with. */
 export function generatePayload(spec: ApiSpec, operation: Operation, options: GenerateOptions = {}): MockPayload {
   const raw = operation.raw;
   const override = isPlainObject(raw['x-mock']) ? raw['x-mock'] : undefined;
 
   const documented = selectResponse(spec, operation, options.status);
 
-  // A caller can force a status code with "?x-mock-status=404". When that
-  // status is not documented we synthesise an error response instead of
-  // silently answering with the success payload.
   if (options.status !== undefined && (!documented || Number(documented.status) !== options.status)) {
     const synthetic = synthesizeErrorPayload(spec, options.status);
     if (override && override['body'] !== undefined) {
@@ -120,12 +109,6 @@ export function generatePayload(spec: ApiSpec, operation: Operation, options: Ge
   return { status, headers, body: serialised, contentType: finalContentType };
 }
 
-/**
- * Build an error payload for a status code that is not documented.
- *
- * The shared error schema of the API is used when there is one, so mocked
- * errors look exactly like the errors the real service would return.
- */
 export function synthesizeErrorPayload(spec: ApiSpec, status: number): MockPayload {
   const schemas = isPlainObject(spec.components['schemas']) ? spec.components['schemas'] : {};
   const errorName = Object.keys(schemas).find((name) => /error/i.test(name));

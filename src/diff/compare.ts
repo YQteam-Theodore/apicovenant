@@ -1,9 +1,4 @@
-/**
- * Contract diffing: compare recorded traffic against a live implementation.
- *
- * This is the part of `apicovenant` that answers the question teams actually
- * ask before a release: *"did my change alter the way the API behaves?"*
- */
+
 
 import { compilePath } from '../mock/server.ts';
 import { validateSchema, type SchemaViolation } from '../spec/schema.ts';
@@ -19,14 +14,12 @@ export interface LiveResponse {
   body: string;
 }
 
-/** Somewhere a recorded interaction can be replayed against. */
 export interface LiveSource {
-  /** Human readable description, shown in the report. */
+
   readonly description: string;
   request(interaction: GoldenInteraction): Promise<LiveResponse>;
 }
 
-/** Replays against a real HTTP server. */
 export class HttpLiveSource implements LiveSource {
   readonly description: string;
   private readonly baseUrl: string;
@@ -67,7 +60,6 @@ export class HttpLiveSource implements LiveSource {
   }
 }
 
-/** Replays against a mock server that is generated from a spec. */
 export class MockLiveSource implements LiveSource {
   readonly description: string;
   private readonly url: string;
@@ -119,11 +111,11 @@ export interface InteractionDiff {
     changed: boolean;
     differences: BodyDifference[];
   };
-  /** Violations of the OpenAPI schema, when a spec is available. */
+
   schemaViolations: SchemaViolation[];
-  /** Set when the replay itself failed. */
+
   error?: string;
-  /** True when the interaction was not replayed. */
+
   skipped?: boolean;
 }
 
@@ -143,17 +135,16 @@ export interface DiffReport {
 }
 
 export interface DiffOptions {
-  /** Headers that are compared. Defaults to a small, stable set. */
+
   compareHeaders?: string[];
-  /** Replay unsafe methods too (POST, PUT, PATCH, DELETE). */
+
   replayAll?: boolean;
-  /** Spec used to validate the new responses. */
+
   spec?: ApiSpec;
 }
 
 const DEFAULT_COMPARE_HEADERS = ['content-type', 'location', 'etag', 'cache-control'];
 
-/** Methods that are safe to replay without changing server state. */
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
 function matchOperation(spec: ApiSpec, method: string, pathname: string): Operation | undefined {
@@ -168,7 +159,6 @@ function matchOperation(spec: ApiSpec, method: string, pathname: string): Operat
   return undefined;
 }
 
-/** Validate a live response body against the documented schema. */
 export function validateAgainstSpec(spec: ApiSpec, operation: Operation | undefined, response: LiveResponse): SchemaViolation[] {
   if (!operation) return [];
 
@@ -188,7 +178,6 @@ export function validateAgainstSpec(spec: ApiSpec, operation: Operation | undefi
   return validateSchema(body, expanded);
 }
 
-/** Compare a golden file against a live source. */
 export async function compareGolden(
   golden: GoldenFile,
   source: LiveSource,
@@ -295,12 +284,10 @@ export async function compareGolden(
   };
 }
 
-/** True when the diff report contains anything worth failing a build on. */
 export function hasBreakingChanges(report: DiffReport): boolean {
   return report.summary.changed > 0 || report.summary.failed > 0;
 }
 
-/** Group differences by the rule-like category for reporting. */
 export function summariseDifferences(interaction: InteractionDiff): string[] {
   const out: string[] = [];
   if (interaction.error) out.push(`request failed: ${interaction.error}`);
@@ -326,7 +313,6 @@ export function summariseDifferences(interaction: InteractionDiff): string[] {
   return out;
 }
 
-/** Build a human readable summary of a diff report. */
 export function describeReport(report: DiffReport): string {
   const parts: string[] = [];
   if (report.summary.changed) parts.push(`${report.summary.changed} changed`);
@@ -336,7 +322,6 @@ export function describeReport(report: DiffReport): string {
   return parts.join(', ');
 }
 
-/** Only used by the JSON reporter to keep the shape stable. */
 export function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return isPlainObject(value);
 }

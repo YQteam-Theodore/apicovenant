@@ -1,9 +1,4 @@
-/**
- * Minimal ANSI styling helper.
- *
- * Colour is enabled when stdout is a TTY and `NO_COLOR` is unset. `FORCE_COLOR`
- * overrides everything, which is handy for snapshot tests and CI logs.
- */
+
 
 export type StyleName =
   | 'bold'

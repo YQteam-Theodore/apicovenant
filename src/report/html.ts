@@ -1,10 +1,4 @@
-/**
- * A standalone HTML report.
- *
- * The output is a single self-contained file: no external stylesheets, no
- * fonts, no scripts from a CDN. It can be attached to a CI job, committed to
- * the repository or emailed to a team without worrying about connectivity.
- */
+
 
 import type { Finding, Severity } from '../lint/types.ts';
 
@@ -26,7 +20,6 @@ export function escapeHtml(text: string): string {
     .replace(/'/g, '&#39;');
 }
 
-/** Render the findings as a standalone HTML document. */
 export function renderHtmlReport(options: HtmlReportOptions): string {
   const generatedAt = options.generatedAt ?? new Date().toISOString();
   const counts: Record<Severity, number> = { error: 0, warn: 0, info: 0 };
@@ -193,8 +186,6 @@ ${emptyState}
         var filter = button.getAttribute('data-filter');
         buttons.forEach(function (other) { other.classList.toggle('active', other === button); });
         rows.forEach(function (row) {
-          // The severity is read from the data attribute, not from the class
-          // list: a hidden row also carries the "hidden" class.
           var severity = row.getAttribute('data-severity');
           row.classList.toggle('hidden', filter !== 'all' && severity !== filter);
         });

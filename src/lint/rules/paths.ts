@@ -1,6 +1,4 @@
-/**
- * Path naming rules: the URL space is the most visible part of an API contract.
- */
+
 
 import type { RuleDefinition } from '../types.ts';
 
@@ -37,7 +35,6 @@ const VERB_SEGMENTS = new Set([
   'import',
 ]);
 
-/** Paths that are singular by design and should not be flagged. */
 const SINGULAR_EXCEPTIONS = new Set([
   'me',
   'self',
@@ -127,8 +124,7 @@ export const pathNoVerbs: RuleDefinition = {
     for (const pathItem of spec.paths) {
       for (const segment of pathItem.path.split('/')) {
         if (segment === '' || segment.startsWith('{')) continue;
-        // A segment can hold several words: "create_stock_item" is just as much
-        // of a verb in the path as "create".
+
         for (const word of segment.split(/[^A-Za-z0-9]+/)) {
           if (word === '') continue;
           if (!VERB_SEGMENTS.has(word.toLowerCase())) continue;
@@ -181,8 +177,7 @@ export const pathParameterDefined: RuleDefinition = {
   category: 'paths',
   keywords: ['path', 'parameter', 'template'],
   check({ spec, report }) {
-    // Parameters may be declared on the path item *or* on the operation, so the
-    // check has to look at the merged set of every operation.
+
     for (const operation of spec.operations) {
       const declared = new Set(
         operation.parameters.filter((parameter) => parameter.in === 'path').map((parameter) => parameter.name),

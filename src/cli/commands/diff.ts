@@ -1,4 +1,4 @@
-/** `apicovenant diff` — replay a golden file and report contract drift. */
+
 
 import { readTextFile } from '../../util/fs.ts';
 import { parseGoldenFile } from '../../record/golden.ts';

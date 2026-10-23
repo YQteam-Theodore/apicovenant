@@ -1,9 +1,4 @@
-/**
- * Structural diffing of two JSON documents.
- *
- * Differences are addressed with JSON Pointers so they can be pasted into a
- * path expression, a `jq` call or a bug report.
- */
+
 
 import { pointer } from '../util/json-pointer.ts';
 import { isPlainObject } from '../util/text.ts';
@@ -11,7 +6,7 @@ import { isPlainObject } from '../util/text.ts';
 export type DifferenceKind = 'added' | 'removed' | 'changed';
 
 export interface BodyDifference {
-  /** JSON Pointer to the changed value. */
+
   path: string;
   kind: DifferenceKind;
   before?: unknown;
@@ -25,12 +20,6 @@ function preview(value: unknown): unknown {
   return value;
 }
 
-/**
- * Compare two JSON documents and report every difference.
- *
- * @param before the recorded (expected) value
- * @param after the current value
- */
 export function diffJson(before: unknown, after: unknown, basePath = ''): BodyDifference[] {
   const differences: BodyDifference[] = [];
 
@@ -87,7 +76,6 @@ export function diffJson(before: unknown, after: unknown, basePath = ''): BodyDi
   return differences;
 }
 
-/** Parse a body when possible, otherwise return the raw text. */
 export function parseBody(body: string, bodyType: string): unknown {
   if (bodyType === 'empty' || body.trim() === '') return undefined;
   if (bodyType !== 'json') return body;

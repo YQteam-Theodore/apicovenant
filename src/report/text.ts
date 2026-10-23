@@ -1,6 +1,4 @@
-/**
- * Terminal report rendering.
- */
+
 
 import { bold, cyan, dim, green, gray, magenta, red, yellow } from '../util/ansi.ts';
 import { humanizePointer } from '../util/json-pointer.ts';
@@ -20,21 +18,20 @@ const SEVERITY_COLOR: Record<Severity, (text: string) => string> = {
 };
 
 export interface TextReportOptions {
-  /** Document that was analysed. */
+
   document: string;
-  /** Findings to render. */
+
   findings: Finding[];
-  /** Total number of findings before severity filtering. */
+
   total?: number;
-  /** Show the "no findings" success message. */
+
   successMessage?: string;
-  /** Group findings by rule instead of listing them individually. */
+
   groupByRule?: boolean;
-  /** Maximum number of findings to print. */
+
   limit?: number;
 }
 
-/** Render the lint findings for a terminal. */
 export function renderTextReport(options: TextReportOptions): string {
   const lines: string[] = [];
   const findings = options.findings;
@@ -94,7 +91,6 @@ export function renderTextReport(options: TextReportOptions): string {
   return lines.join('\n');
 }
 
-/** A compact "one rule fired N times" breakdown. */
 export function renderRuleBreakdown(findings: Finding[]): string {
   const byRule = new Map<string, number>();
   for (const finding of findings) byRule.set(finding.ruleId, (byRule.get(finding.ruleId) ?? 0) + 1);
@@ -110,7 +106,6 @@ export function renderRuleBreakdown(findings: Finding[]): string {
   return lines.join('\n');
 }
 
-/** Render a one line summary suitable for CI logs. */
 export function renderSummaryLine(counts: Record<Severity, number>, document: string): string {
   const parts: string[] = [];
   if (counts.error) parts.push(red(`${counts.error} error${counts.error === 1 ? '' : 's'}`));

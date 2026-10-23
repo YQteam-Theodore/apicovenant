@@ -1,12 +1,9 @@
-/**
- * The lint engine: rule selection, execution and finding ordering.
- */
+
 
 import { SEVERITY_ORDER, type Finding, type LintOptions, type LintResult, type RuleDefinition, type Severity } from './types.ts';
 import { ALL_RULES } from './rules/index.ts';
 import type { ApiSpec } from '../spec/model.ts';
 
-/** Every rule known to this build of `apicovenant`. */
 export function allRules(): RuleDefinition[] {
   return ALL_RULES;
 }
@@ -15,7 +12,6 @@ export function findRule(id: string): RuleDefinition | undefined {
   return ALL_RULES.find((rule) => rule.id === id);
 }
 
-/** Resolve the rule selection requested on the command line. */
 export function selectRules(options: LintOptions): RuleDefinition[] {
   const include = options.rules?.length ? new Set(options.rules) : null;
   const ignore = new Set(options.ignore ?? []);
@@ -27,7 +23,6 @@ export function selectRules(options: LintOptions): RuleDefinition[] {
   });
 }
 
-/** Run the selected rules against a spec and collect the findings. */
 export function lint(spec: ApiSpec, options: LintOptions = {}): LintResult {
   const rules = selectRules(options);
   const findings: Finding[] = [];

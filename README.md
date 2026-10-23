@@ -1,13 +1,26 @@
 # apicovenant
 
-> **An OpenAPI contract guardian.** Lint the design conventions of your spec, mock it, record real traffic against it, and find out whether your next release changed the contract — with **zero runtime dependencies**.
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-mono.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/logo.svg">
+    <img src="assets/logo.svg" alt="apicovenant" width="128" height="128">
+  </picture>
+</p>
 
-[![npm](https://img.shields.io/npm/v/apicovenant.svg)](https://www.npmjs.com/package/apicovenant)
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![node](https://img.shields.io/badge/node-%3E%3D22.18-5FA04E.svg)](https://nodejs.org)
-[![dependencies](https://img.shields.io/badge/runtime%20dependencies-0-success.svg)](package.json)
+<p align="center"><strong>An OpenAPI contract guardian.</strong></p>
+<p align="center">Lint the design conventions of your spec, mock it, record real traffic against it, and find out whether your next release changed the contract — with <strong>zero runtime dependencies</strong>.</p>
 
-[English](README.md) · [简体中文](README.zh-CN.md)
+<p align="center">
+  <a href="https://www.npmjs.com/package/apicovenant"><img src="https://img.shields.io/npm/v/apicovenant.svg" alt="npm"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="license"></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22.18-5FA04E.svg" alt="node">
+  <img src="https://img.shields.io/badge/runtime%20dependencies-0-success.svg" alt="dependencies">
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> · <a href="README.zh-CN.md">简体中文</a>
+</p>
 
 ---
 
@@ -298,4 +311,9 @@ node --test
 
 ## License
 
-[MIT](LICENSE) © apicovenant contributors
+[Apache-2.0](LICENSE) © apicovenant contributors
+
+Released under the Apache License, Version 2.0. You may use, modify and
+redistribute this software — including inside closed source and commercial
+products — provided that you keep the copyright notice and the license text.
+The license also grants an express patent license from every contributor.

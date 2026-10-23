@@ -1,4 +1,4 @@
-/** `apicovenant record` — capture real traffic into a golden file. */
+
 
 import { readTextFile, writeTextFile } from '../../util/fs.ts';
 import { serializeGoldenFile } from '../../record/golden.ts';
@@ -59,7 +59,6 @@ export async function runRecord(options: RecordCommandOptions): Promise<number> 
   return 0;
 }
 
-/** Read a golden file from disk. */
 export async function readGoldenFile(filePath: string): Promise<string> {
   return readTextFile(filePath);
 }

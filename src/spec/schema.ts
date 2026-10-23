@@ -1,15 +1,4 @@
-/**
- * A pragmatic JSON Schema (draft 2020-12 / OpenAPI 3.1 subset) implementation.
- *
- * Two features are needed by `apicovenant`:
- *
- *   1. **Validation** — does a live response still satisfy the contract?
- *   2. **Example generation** — build deterministic payloads for the mock
- *      server from a schema.
- *
- * Both work on OpenAPI 3.0 schemas too (`nullable` is understood as a
- * synonym of a `null` type member).
- */
+
 
 import { isPlainObject } from '../util/text.ts';
 import { pointer } from '../util/json-pointer.ts';
@@ -52,17 +41,17 @@ export interface JsonSchema {
 }
 
 export interface SchemaViolation {
-  /** JSON Pointer to the offending value. */
+
   path: string;
-  /** JSON Pointer to the schema that rejected the value. */
+
   schemaPath: string;
   message: string;
 }
 
 export interface ValidateOptions {
-  /** Maximum number of violations collected before bailing out. */
+
   maxErrors?: number;
-  /** Property names that must not be reported (used for write-only fields). */
+
   skipProperties?: Set<string>;
 }
 
@@ -89,7 +78,6 @@ function matchesType(value: unknown, names: string[]): boolean {
   return names.some((name) => TYPE_CHECKS[name]?.(value) ?? true);
 }
 
-/** Validate a value against a schema and return every violation found. */
 export function validateSchema(value: unknown, schema: unknown, options: ValidateOptions = {}): SchemaViolation[] {
   const violations: SchemaViolation[] = [];
   const maxErrors = options.maxErrors ?? 100;
@@ -336,27 +324,19 @@ export function describeType(value: unknown): string {
   return typeof value;
 }
 
-// ---------------------------------------------------------------- examples
-
 export interface GenerateOptions {
-  /** Include properties that are not required (mock payloads are richer). */
+
   includeOptional?: boolean;
-  /** Skip `readOnly` properties (request bodies). */
+
   skipReadOnly?: boolean;
-  /** Skip `writeOnly` properties (response bodies). */
+
   skipWriteOnly?: boolean;
-  /** Depth guard for recursive schemas. */
+
   maxDepth?: number;
-  /** Deterministic seed so repeated runs produce identical payloads. */
+
   seed?: string;
 }
 
-/**
- * Build a deterministic example payload for a schema.
- *
- * The same schema always produces the same payload, which makes mock
- * responses stable and diffable.
- */
 export function generateExample(schema: unknown, options: GenerateOptions = {}): unknown {
   const maxDepth = options.maxDepth ?? 6;
 
@@ -489,7 +469,6 @@ export function hashString(text: string): number {
   return Math.abs(hash);
 }
 
-/** Convenience: JSON Pointer for a property path. */
 export function propertyPointer(...keys: string[]): string {
   return pointer(...keys);
 }

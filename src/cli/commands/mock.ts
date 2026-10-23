@@ -1,4 +1,4 @@
-/** `apicovenant mock` — serve a mock API from an OpenAPI document. */
+
 
 import { startMockServer } from '../../mock/server.ts';
 import { bold, cyan, dim, green } from '../../util/ansi.ts';

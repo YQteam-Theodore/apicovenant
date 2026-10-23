@@ -1,4 +1,4 @@
-/** Small string helpers shared by the linter and the reporters. */
+
 
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -22,7 +22,6 @@ export function truncate(text: string, max: number): string {
   return text.slice(0, Math.max(0, max - 1)) + '\u2026';
 }
 
-/** `camelCase` / `PascalCase` detection. */
 export function isCamelCase(text: string): boolean {
   return /^[a-z][a-zA-Z0-9]*$/.test(text);
 }
@@ -31,7 +30,6 @@ export function isPascalCase(text: string): boolean {
   return /^[A-Z][a-zA-Z0-9]*$/.test(text);
 }
 
-/** `kebab-case` / `snake_case` detection (no leading/trailing separators). */
 export function isKebabCase(text: string): boolean {
   return /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(text);
 }
@@ -40,7 +38,6 @@ export function isSnakeCase(text: string): boolean {
   return /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/.test(text);
 }
 
-/** Words of a snake/kebab/camel identifier, lowercased. */
 export function words(text: string): string[] {
   return text
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
@@ -61,7 +58,6 @@ export function pluralize(word: string): string {
   return `${word}s`;
 }
 
-/** Stable, order independent comparison used to detect casing inconsistency. */
 export function dominantStyle(values: string[]): 'camelCase' | 'snake_case' | 'kebab-case' | 'other' {
   const camel = values.filter(isCamelCase).length;
   const snake = values.filter(isSnakeCase).length;

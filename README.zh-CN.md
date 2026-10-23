@@ -1,13 +1,26 @@
 # apicovenant
 
-> **OpenAPI 契约守卫。** 检查规范文档的设计约定、基于规范起一个 mock、录制真实流量、再对比下一个版本有没有改动契约 —— **零运行时依赖**。
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-mono.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/logo.svg">
+    <img src="assets/logo.svg" alt="apicovenant" width="128" height="128">
+  </picture>
+</p>
 
-[![npm](https://img.shields.io/npm/v/apicovenant.svg)](https://www.npmjs.com/package/apicovenant)
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![node](https://img.shields.io/badge/node-%3E%3D22.18-5FA04E.svg)](https://nodejs.org)
-[![dependencies](https://img.shields.io/badge/runtime%20dependencies-0-success.svg)](package.json)
+<p align="center"><strong>OpenAPI 契约守卫。</strong></p>
+<p align="center">检查规范文档的设计约定、基于规范起一个 mock、录制真实流量、再对比下一个版本有没有改动契约 —— <strong>零运行时依赖</strong>。</p>
 
-[English](README.md) · [简体中文](README.zh-CN.md)
+<p align="center">
+  <a href="https://www.npmjs.com/package/apicovenant"><img src="https://img.shields.io/npm/v/apicovenant.svg" alt="npm"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="license"></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22.18-5FA04E.svg" alt="node">
+  <img src="https://img.shields.io/badge/runtime%20dependencies-0-success.svg" alt="dependencies">
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> · <a href="README.zh-CN.md">简体中文</a>
+</p>
 
 ---
 
@@ -288,4 +301,8 @@ node --test
 
 ## 许可证
 
-[MIT](LICENSE) © apicovenant contributors
+[Apache-2.0](LICENSE) © apicovenant contributors
+
+本项目基于 Apache License 2.0 发布。你可以自由使用、修改和再分发本软件
+（包括闭源与商业用途），唯一义务是保留版权声明与许可证全文；该许可证还附带
+来自所有贡献者的明确专利授权。

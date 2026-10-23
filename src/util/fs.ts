@@ -1,7 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-/** Read a UTF-8 text file. */
 export async function readTextFile(filePath: string): Promise<string> {
   return fs.readFile(filePath, 'utf8');
 }

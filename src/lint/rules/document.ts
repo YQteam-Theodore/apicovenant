@@ -1,6 +1,4 @@
-/**
- * Document level rules: metadata, servers and tags.
- */
+
 
 import type { RuleDefinition } from '../types.ts';
 

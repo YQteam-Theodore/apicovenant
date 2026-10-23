@@ -1,21 +1,4 @@
-/**
- * A focused YAML 1.2 subset parser.
- *
- * `apicovenant` ships with **zero runtime dependencies**, so instead of pulling
- * in a YAML library we implement the subset that OpenAPI documents actually
- * use:
- *
- *   - block mappings and block sequences (including `- key: value` items)
- *   - flow collections (`[a, b]`, `{a: 1}`)
- *   - single/double quoted scalars, plain scalars, and type resolution
- *   - literal (`|`) and folded (`>`) block scalars with chomping indicators
- *   - comments, document markers, anchors (`&a`) and aliases (`*a`)
- *   - multi-line plain scalars
- *
- * Anything outside the subset raises a {@link YamlError} that points at the
- * offending line, so users get a precise diagnosis instead of a silent
- * mis-parse.
- */
+
 
 export class YamlError extends Error {
   readonly line: number;
@@ -30,15 +13,15 @@ export class YamlError extends Error {
 }
 
 interface SourceLine {
-  /** Number of leading spaces. */
+
   indent: number;
-  /** Comment stripped content with trailing whitespace removed. */
+
   text: string;
-  /** Original line, needed verbatim for block scalars. */
+
   raw: string;
-  /** 1-based line number. */
+
   num: number;
-  /** True for blank lines and comment-only lines. */
+
   blank: boolean;
 }
 
@@ -62,8 +45,7 @@ class YamlParser {
       .map((raw, i) => {
         const indent = raw.length - raw.trimStart().length;
         const stripped = stripComment(raw);
-        // `text` is the line content with the indentation removed; `raw` keeps
-        // the original bytes so block scalars can be reproduced verbatim.
+
         const text = stripped.slice(indent).replace(/\s+$/, '');
         const blank = text.trim() === '';
         return { indent, text: blank ? '' : text, raw, num: i + 1, blank };
@@ -82,8 +64,6 @@ class YamlParser {
     const value = this.parseNode(0);
     return value === undefined ? null : value;
   }
-
-  // ---------------------------------------------------------------- helpers
 
   private skipIgnorable(): void {
     while (this.index < this.lines.length) {
@@ -106,15 +86,13 @@ class YamlParser {
     return this.lines[this.index];
   }
 
-  // ------------------------------------------------------------------ nodes
-
   private parseNode(minIndent: number): unknown {
     const line = this.peek();
     if (!line) return null;
     if (line.text === '---' || line.text === '...') return null;
     if (isSequenceEntry(line.text)) return this.parseSequence(line.indent);
     if (findKeySeparator(line.text) === -1) {
-      // A bare scalar document (rare but legal).
+
       this.index += 1;
       return this.parseInlineValue(line.text, line.indent, line);
     }
@@ -171,8 +149,7 @@ class YamlParser {
       }
 
       if (findKeySeparator(content) !== -1) {
-        // `- key: value` — re-enter the line as a mapping that starts at the
-        // column of the first character after the dash.
+
         this.lines[this.index] = { ...line, indent: contentIndent, text: content };
         items.push(this.parseMapping(contentIndent));
         continue;
@@ -185,12 +162,11 @@ class YamlParser {
     return items;
   }
 
-  /** Parse the block that belongs to a key whose value was empty. */
   private parseChildBlock(parentIndent: number): unknown {
     const next = this.peek();
     if (!next) return null;
     if (next.indent > parentIndent) return this.parseNode(next.indent);
-    // A sequence may legally sit at the same indentation as its parent key.
+
     if (next.indent === parentIndent && isSequenceEntry(next.text)) {
       return this.parseSequence(next.indent);
     }
@@ -220,8 +196,6 @@ class YamlParser {
     if (anchorName) this.anchors.set(anchorName, parsed);
     return parsed;
   }
-
-  // ----------------------------------------------------------------- values
 
   private parseInlineValue(text: string, indent: number, line: SourceLine): unknown {
     const value = text.trim();
@@ -253,7 +227,6 @@ class YamlParser {
       return quoted.value;
     }
 
-    // Plain scalar, possibly continued on following more-indented lines.
     const parts = [value];
     for (;;) {
       const next = this.lines[this.index];
@@ -293,8 +266,7 @@ class YamlParser {
     if (style === '|') {
       body = collected.join('\n');
     } else {
-      // Folded: single newlines become spaces, blank lines stay as newlines,
-      // and more-indented lines keep their line breaks.
+
       const parts: string[] = [];
       for (let i = 0; i < collected.length; i += 1) {
         const current = collected[i] as string;
@@ -326,18 +298,10 @@ class YamlParser {
   }
 }
 
-// --------------------------------------------------------------- utilities
-
 function isSequenceEntry(text: string): boolean {
   return text === '-' || text.startsWith('- ');
 }
 
-/**
- * Locate the `:` that separates a mapping key from its value.
- *
- * The colon must be outside quotes and flow collections and must be followed by
- * a space or the end of the line, otherwise it is part of a plain scalar.
- */
 export function findKeySeparator(text: string): number {
   let quote: '"' | "'" | null = null;
   let depth = 0;
@@ -465,7 +429,6 @@ function parseQuoted(text: string, lineNum: number): { value: string; length: nu
   throw new YamlError('Unterminated quoted string', lineNum);
 }
 
-/** Resolve a plain (unquoted) scalar to its YAML 1.2 core-schema type. */
 export function resolveScalar(raw: string): unknown {
   const text = raw.trim();
   if (NULL_VALUES.has(text)) return null;
@@ -484,7 +447,6 @@ export function resolveScalar(raw: string): unknown {
   return text;
 }
 
-/** Strip a trailing `#` comment while respecting quotes. */
 function stripComment(raw: string): string {
   let quote: '"' | "'" | null = null;
   for (let i = 0; i < raw.length; i += 1) {
@@ -514,7 +476,6 @@ function stripComment(raw: string): string {
   return raw;
 }
 
-/** Parse a flow collection such as `[a, b]` or `{a: 1, b: 2}`. */
 function parseFlow(text: string, lineNum: number): unknown {
   let pos = 0;
 
@@ -533,14 +494,14 @@ function parseFlow(text: string, lineNum: number): unknown {
       pos += length;
       return value;
     }
-    // Plain scalar until , ] }
+
     const start = pos;
     while (pos < text.length && !',]}\n'.includes(text[pos] as string)) pos += 1;
     return resolveScalar(text.slice(start, pos));
   };
 
   const parseSeq = (): unknown[] => {
-    pos += 1; // consume [
+    pos += 1;
     const items: unknown[] = [];
     for (;;) {
       skipWs();
@@ -564,7 +525,7 @@ function parseFlow(text: string, lineNum: number): unknown {
   };
 
   const parseMap = (): Record<string, unknown> => {
-    pos += 1; // consume {
+    pos += 1;
     const map: Record<string, unknown> = {};
     for (;;) {
       skipWs();

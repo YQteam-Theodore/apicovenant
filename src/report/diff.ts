@@ -1,4 +1,4 @@
-/** Terminal rendering of a contract diff report. */
+
 
 import { bold, cyan, dim, green, magenta, red, yellow } from '../util/ansi.ts';
 import { humanizePointer } from '../util/json-pointer.ts';
@@ -7,7 +7,7 @@ import { describeReport, summariseDifferences, type DiffReport } from '../diff/c
 export interface DiffTextOptions {
   report: DiffReport;
   goldenFile: string;
-  /** Maximum number of interactions to print. */
+
   limit?: number;
 }
 

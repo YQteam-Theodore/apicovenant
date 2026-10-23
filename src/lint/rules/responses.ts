@@ -1,6 +1,4 @@
-/**
- * Response level rules: the shape of the answers an API gives.
- */
+
 
 import type { RuleDefinition } from '../types.ts';
 import { isPlainObject } from '../../util/text.ts';
@@ -194,13 +192,11 @@ export const responseErrorEnvelope: RuleDefinition = {
 
     if (usage.size === 0) return;
 
-    // The schema used by most error responses is the reference; every other
-    // error shape is reported so the API converges on a single envelope.
     const sorted = [...usage.entries()].sort((a, b) => b[1].length - a[1].length);
     const dominant = sorted[0];
 
     for (const [name, entries] of sorted) {
-      if (sorted.length === 1 && name !== '<inline>') continue; // one shared error schema: nothing to report
+      if (sorted.length === 1 && name !== '<inline>') continue;
 
       for (const entry of entries) {
         if (name === '<inline>') {

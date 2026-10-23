@@ -13,6 +13,8 @@ The first release. One CLI, four commands, zero runtime dependencies.
 
 ### Added
 
+- A logo: `assets/logo.svg` (mark), `assets/logo-mono.svg` (dark mode) and
+  `assets/icon.svg` (app icon), with PNG exports.
 - **`apicovenant lint`** — 42 design-convention rules across 8 categories
   (document, operations, paths, parameters, responses, schemas, security,
   pagination). Every finding carries a JSON Pointer into the document and a
@@ -40,8 +42,15 @@ The first release. One CLI, four commands, zero runtime dependencies.
 - A reference contract (`examples/shop.openapi.yaml`) that passes the linter
   with zero findings, and a deliberately inconsistent one
   (`examples/legacy.openapi.yaml`) for demonstrating the rules.
-- 82 tests covering the parser, the model, the rules, the mock server, the
-  recorder, the diff engine and the command line interface.
+- 92 tests covering the parser, the model, the rules, the mock server, the
+  recorder, the diff engine, the reports and the command line interface.
+
+### Changed
+
+- The project is licensed under the **Apache License 2.0** instead of MIT.
+  A `NOTICE` file carries the attribution.
+- The source code carries no comments. The behaviour is documented in
+  `README.md`, `docs/rules.md` and `CONTRIBUTING.md` instead.
 
 [Unreleased]: https://github.com/apicovenant/apicovenant/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/apicovenant/apicovenant/releases/tag/v0.1.0

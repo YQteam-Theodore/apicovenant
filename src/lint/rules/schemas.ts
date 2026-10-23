@@ -1,6 +1,4 @@
-/**
- * Schema level rules: naming, structure and hygiene of reusable components.
- */
+
 
 import type { RuleDefinition } from '../types.ts';
 import { componentSchemas } from '../../spec/model.ts';
@@ -12,7 +10,6 @@ interface RefLocation {
   path: string;
 }
 
-/** Collect every `$ref` in the document together with the pointer of its owner. */
 function collectRefLocations(doc: unknown, path = ''): RefLocation[] {
   const out: RefLocation[] = [];
   const visit = (node: unknown, currentPath: string): void => {
@@ -34,7 +31,6 @@ function collectRefLocations(doc: unknown, path = ''): RefLocation[] {
   return out;
 }
 
-/** Walk a schema, resolving `$ref`s into `components/schemas` once each. */
 function walkSchema(
   doc: Record<string, unknown>,
   schema: unknown,
@@ -84,7 +80,6 @@ function resolveSchemaRef(doc: Record<string, unknown>, ref: string): unknown {
   return current;
 }
 
-/** Component groups whose names become types in generated code. */
 const TYPE_LIKE_GROUPS = new Set(['schemas', 'responses', 'parameters', 'requestBodies', 'headers']);
 
 export const componentNamingPascal: RuleDefinition = {
@@ -142,8 +137,6 @@ export const componentUnused: RuleDefinition = {
     const locations = collectRefLocations(spec.raw);
     const components = spec.components;
 
-    // Security schemes are referenced by name inside `security` requirements
-    // rather than through a `$ref`, so they need a separate usage check.
     const securityNames = new Set<string>();
     for (const operation of spec.operations) {
       for (const requirement of operation.security) {
@@ -213,8 +206,6 @@ export const schemaPropertyNamingConsistency: RuleDefinition = {
       return isKebabCase(name);
     };
 
-    // Only complain when a clear majority exists, otherwise the API has no
-    // convention yet and reporting every property would be noise.
     const compliant = names.filter(matches).length;
     if (compliant / names.length < 0.8) return;
 
@@ -325,8 +316,7 @@ export const schemaExampleRecommended: RuleDefinition = {
   check({ spec, report }) {
     const schemas = componentSchemas(spec);
     for (const [schemaName, schema] of Object.entries(schemas)) {
-      // Only top level components are expected to carry an example; nested
-      // schemas are usually small building blocks of their parent.
+
       if (!isPlainObject(schema)) continue;
       if (schema['example'] !== undefined) continue;
       if (schema['examples'] !== undefined) continue;
