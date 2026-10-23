@@ -2,8 +2,8 @@
 
 import { parseArgs } from 'node:util';
 
-import { bold, dim, red } from '../util/ansi.ts';
-import { TOOL_NAME, VERSION } from '../version.ts';
+import { red } from '../util/ansi.ts';
+import { VERSION } from '../version.ts';
 import {
   DIFF_HELP,
   LINT_HELP,

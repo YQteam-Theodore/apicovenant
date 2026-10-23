@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `npm run release-check` (`scripts/release-check.mjs`) runs the checks a
+  release depends on: the rule catalogue against `docs/rules.md`, the README
+  claims against reality, every relative link, the published file list, unused
+  exports and leftover debug markers. It runs in CI.
 - `src/index.ts` is now the real package entry point. The `exports` field
   pointed at a file that did not exist, so `import ... from 'apicovenant'`
   failed. The whole tool is now usable as a library: `lint`, `loadSpecFile`,
@@ -28,7 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   capture group was missing.
 - `typescript` is declared as `^5.8.0`: the `erasableSyntaxOnly` compiler
   option used by the project does not exist in 5.6.
-- Removed 16 exported helpers that nothing referenced.
+- Removed 16 exported helpers that nothing referenced, plus 10 unused imports
+  and parameters that `noUnusedLocals` and `noUnusedParameters` now catch.
 
 ## [0.1.0] — 2026-10-23
 

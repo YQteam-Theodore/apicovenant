@@ -32,6 +32,7 @@
     "src",
     "docs",
     "assets",
+    "scripts",
     "README.md",
     "README.zh-CN.md",
     "LICENSE",
@@ -43,6 +44,7 @@
     "test:watch": "node --test --watch",
     "coverage": "node --test --experimental-test-coverage",
     "typecheck": "tsc --noEmit",
+    "release-check": "node scripts/release-check.mjs",
     "lint:self": "node bin/apicovenant.mjs lint examples/shop.openapi.yaml --format text"
   },
   "devDependencies": {

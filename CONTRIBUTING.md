@@ -20,7 +20,21 @@ node --test                      # run the whole suite
 node --test test/lint.test.ts    # run one file
 node --test --watch              # re-run on change
 node bin/apicovenant.mjs lint examples/shop.openapi.yaml   # try it out
+node scripts/release-check.mjs   # the checks a release depends on
 ```
+
+### The three gates
+
+A change is ready when all three pass:
+
+| Gate | Command | Checks |
+| --- | --- | --- |
+| Tests | `node --test` | Behaviour, including that every rule fires on a fixture |
+| Types | `npx tsc --noEmit` | `strict`, `noUncheckedIndexedAccess`, `noUnusedLocals`, `erasableSyntaxOnly` |
+| Release check | `node scripts/release-check.mjs` | Rule catalogue vs docs, README claims, links, published file list, dead exports, leftovers |
+
+`erasableSyntaxOnly` matters here: it guarantees the source can be executed by
+Node without a compiler, which is what makes the zero-build promise real.
 
 ## Project layout
 

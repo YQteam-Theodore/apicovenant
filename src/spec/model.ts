@@ -1,7 +1,7 @@
 
 
 import { isPlainObject, toArray } from '../util/text.ts';
-import { deref, followRef } from './ref.ts';
+import { followRef } from './ref.ts';
 
 export type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace';
 

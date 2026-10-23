@@ -7,7 +7,8 @@ import { renderJsonReport } from '../../report/json.ts';
 import { renderHtmlReport } from '../../report/html.ts';
 import { bold, dim, green, red, yellow } from '../../util/ansi.ts';
 import { TOOL_NAME, VERSION } from '../../version.ts';
-import { describeError, loadSpec, splitList, UsageError } from '../common.ts';import type { Severity } from '../../lint/types.ts';
+import { loadSpec, UsageError } from '../common.ts';
+import type { Severity } from '../../lint/types.ts';
 
 export interface LintCommandOptions {
   document: string;

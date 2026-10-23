@@ -1,6 +1,6 @@
 
 
-import { bold, cyan, dim, green, gray, magenta, red, yellow } from '../util/ansi.ts';
+import { bold, cyan, dim, green, magenta, red, yellow } from '../util/ansi.ts';
 import { humanizePointer } from '../util/json-pointer.ts';
 import { truncate } from '../util/text.ts';
 import type { Finding, Severity } from '../lint/types.ts';

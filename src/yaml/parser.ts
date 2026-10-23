@@ -61,7 +61,7 @@ class YamlParser {
     }
     if (!this.lines[this.index]) return null;
 
-    const value = this.parseNode(0);
+    const value = this.parseNode();
     return value === undefined ? null : value;
   }
 
@@ -86,7 +86,7 @@ class YamlParser {
     return this.lines[this.index];
   }
 
-  private parseNode(minIndent: number): unknown {
+  private parseNode(): unknown {
     const line = this.peek();
     if (!line) return null;
     if (line.text === '---' || line.text === '...') return null;
@@ -165,7 +165,7 @@ class YamlParser {
   private parseChildBlock(parentIndent: number): unknown {
     const next = this.peek();
     if (!next) return null;
-    if (next.indent > parentIndent) return this.parseNode(next.indent);
+    if (next.indent > parentIndent) return this.parseNode();
 
     if (next.indent === parentIndent && isSequenceEntry(next.text)) {
       return this.parseSequence(next.indent);
@@ -188,7 +188,7 @@ class YamlParser {
     if (value === '') {
       parsed = this.parseChildBlock(parentIndent);
     } else if (value.startsWith('|') || value.startsWith('>')) {
-      parsed = this.parseBlockScalar(value, parentIndent, line);
+      parsed = this.parseBlockScalar(value, parentIndent);
     } else {
       parsed = this.parseInlineValue(value, parentIndent, line);
     }
@@ -243,7 +243,7 @@ class YamlParser {
     return resolveScalar(parts.join(' '));
   }
 
-  private parseBlockScalar(header: string, parentIndent: number, line: SourceLine): string {
+  private parseBlockScalar(header: string, parentIndent: number): string {
     const style = header[0] as '|' | '>';
     const modifiers = header.slice(1).trim();
     const chomp = /[-+]/.test(modifiers) ? (modifiers.includes('-') ? 'strip' : 'keep') : 'clip';

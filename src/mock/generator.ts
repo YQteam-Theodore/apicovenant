@@ -19,7 +19,7 @@ export interface GenerateOptions {
   latency?: number;
 }
 
-export function selectResponse(spec: ApiSpec, operation: Operation, requestedStatus?: number): Response | undefined {
+export function selectResponse(operation: Operation, requestedStatus?: number): Response | undefined {
   const responses = [...operation.responses.values()];
 
   if (requestedStatus !== undefined) {
@@ -46,7 +46,7 @@ export function generatePayload(spec: ApiSpec, operation: Operation, options: Ge
   const raw = operation.raw;
   const override = isPlainObject(raw['x-mock']) ? raw['x-mock'] : undefined;
 
-  const documented = selectResponse(spec, operation, options.status);
+  const documented = selectResponse(operation, options.status);
 
   if (options.status !== undefined && (!documented || Number(documented.status) !== options.status)) {
     const synthetic = synthesizeErrorPayload(spec, options.status);

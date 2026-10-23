@@ -36,6 +36,9 @@ jobs:
           npm install --no-save typescript@^5.8.0 @types/node@^22.7.0
           npx tsc --noEmit
 
+      - name: Release check
+        run: node scripts/release-check.mjs
+
   self-check:
     name: apicovenant lints its own examples
     runs-on: ubuntu-latest
