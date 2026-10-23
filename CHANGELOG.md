@@ -14,7 +14,12 @@ The first release. One CLI, four commands, zero runtime dependencies.
 ### Added
 
 - A logo: `assets/logo.svg` (mark), `assets/logo-mono.svg` (dark mode) and
-  `assets/icon.svg` (app icon), with PNG exports.
+  `assets/icon.svg` (app icon), with PNG exports. The mark is a square
+  spiral whose inner arm folds diagonally towards a marked endpoint — a
+  contract walked from one end to the other. It is drawn in graphite
+  (#18181B) and deliberately avoids the hexagon, shield and rounded-square
+  containers that are already crowded in the security and developer-tools
+  categories.
 - **`apicovenant lint`** — 42 design-convention rules across 8 categories
   (document, operations, paths, parameters, responses, schemas, security,
   pagination). Every finding carries a JSON Pointer into the document and a

@@ -1,20 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="apicovenant">
-  <defs>
-    <linearGradient id="badge" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="512" y2="512">
-      <stop offset="0%" stop-color="#5A7CFF"/>
-      <stop offset="100%" stop-color="#8B5CF6"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="112" fill="url(#badge)"/>
-  <g fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M256 108 L384 149 V250 C384 320 331 379 256 422 C181 379 128 320 128 250 V149 Z"/>
-  </g>
-  <g stroke="#FFFFFF" stroke-width="24" stroke-linecap="round" fill="none">
-    <path d="M256 165 V336"/>
-    <path d="M256 250 H317"/>
-  </g>
-  <g fill="#FFFFFF">
-    <circle cx="256" cy="165" r="19"/>
-    <circle cx="317" cy="250" r="19"/>
+  <rect width="512" height="512" rx="112" fill="#18181B"/>
+  <g transform="translate(256 256) scale(0.74) translate(-256 -256)">
+    <g fill="none" stroke="#F5F5F7" stroke-width="38" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M396 118 H116 V396 H396 V268 L312 202"/>
+    </g>
+    <circle cx="312" cy="202" r="31" fill="#F5F5F7"/>
   </g>
 </svg>

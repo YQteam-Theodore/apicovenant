@@ -1,13 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="apicovenant">
-  <g fill="none" stroke="#FFFFFF" stroke-width="30" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M256 96 L400 142 V252 C400 330 340 396 256 444 C172 396 112 330 112 252 V142 Z"/>
+  <g fill="none" stroke="#F5F5F7" stroke-width="38" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M396 118 H116 V396 H396 V268 L312 202"/>
   </g>
-  <g stroke="#FFFFFF" stroke-width="26" stroke-linecap="round" fill="none">
-    <path d="M256 158 V346"/>
-    <path d="M256 252 H324"/>
-  </g>
-  <g fill="#FFFFFF">
-    <circle cx="256" cy="158" r="21"/>
-    <circle cx="324" cy="252" r="21"/>
-  </g>
+  <circle cx="312" cy="202" r="31" fill="#F5F5F7"/>
 </svg>
