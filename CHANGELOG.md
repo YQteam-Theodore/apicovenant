@@ -5,56 +5,25 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+From 1.0.0 onwards the public API, the CLI flags and the file formats are
+stable. Anything that changes them will be announced here under a heading that
+says so.
+
 ## [Unreleased]
 
-### Added
+## [1.0.0] — 2026-10-23
 
-- `npm run release-check` (`scripts/release-check.mjs`) runs the checks a
-  release depends on: the rule catalogue against `docs/rules.md`, the README
-  claims against reality, every relative link, the published file list, unused
-  exports and leftover debug markers. It runs in CI.
-- `src/index.ts` is now the real package entry point. The `exports` field
-  pointed at a file that did not exist, so `import ... from 'apicovenant'`
-  failed. The whole tool is now usable as a library: `lint`, `loadSpecFile`,
-  `startMockServer`, `startRecorder`, `compareGolden`, `diffJson` and the
-  reporters are all exported.
-- `examples/violations.openapi.yaml`, a fixture that breaks every convention
-  at once, plus `test/rules.test.ts` which asserts that **every rule fires on
-  at least one fixture**. Before this, 19 of the 42 rules were never exercised
-  by any test and could have been silently broken.
-
-### Fixed
-
-- The global `Response` type resolved to an empty interface under
-  `@types/node` without the DOM lib, so `fetch` responses had no `status`,
-  `headers` or `text`. `lib` now includes `DOM`.
-- The YAML parser registered an anchor under an `undefined` name when the
-  capture group was missing.
-- `typescript` is declared as `^5.8.0`: the `erasableSyntaxOnly` compiler
-  option used by the project does not exist in 5.6.
-- Removed 16 exported helpers that nothing referenced, plus 10 unused imports
-  and parameters that `noUnusedLocals` and `noUnusedParameters` now catch.
-
-## [0.1.0] — 2026-10-23
-
-The first release. One CLI, four commands, zero runtime dependencies.
+The first stable release. One CLI, four commands, zero runtime dependencies.
 
 ### Added
 
-- A logo: `assets/logo.svg` (mark), `assets/logo-mono.svg` (dark mode) and
-  `assets/icon.svg` (app icon), with PNG exports. The mark is a square
-  spiral whose inner arm folds diagonally towards a marked endpoint — a
-  contract walked from one end to the other. It is drawn in graphite
-  (#18181B) and deliberately avoids the hexagon, shield and rounded-square
-  containers that are already crowded in the security and developer-tools
-  categories.
 - **`apicovenant lint`** — 42 design-convention rules across 8 categories
   (document, operations, paths, parameters, responses, schemas, security,
   pagination). Every finding carries a JSON Pointer into the document and a
   hint on how to fix it.
   - Reports in `text`, `json` and a self-contained `html` format.
   - `--rules`, `--ignore`, `--severity`, `--fail-on` and `--output` for
-    fine-grained control.
+  - fine-grained control.
 - **`apicovenant mock`** — a mock server generated from the OpenAPI document.
   Payloads come from the documented example when there is one and are derived
   deterministically from the schema otherwise, so repeated runs are identical.
@@ -66,24 +35,42 @@ The first release. One CLI, four commands, zero runtime dependencies.
   and reports behaviour drift: status codes, headers and body differences
   addressed by JSON Pointer. Only safe methods are replayed unless
   `--replay-all` is given. With `--spec`, responses are additionally validated
-  against the documented schema.
+  against the documented schema. The report can be written as `html`.
 - **`apicovenant rules`** — the rule catalogue, as text or JSON.
+- **`apicovenant init`** — writes a starter configuration file.
+- **Configuration files** — `apicovenant.config.json`, the YAML equivalents,
+  `.apicovenantrc.*`, or an `apicovenant` key in `package.json`. Unknown
+  settings are an error, so a typo can never silently disable a check. See
+  [docs/configuration.md](docs/configuration.md).
+- **Baselines** — record the findings that already exist so the command only
+  fails on new ones. This is what makes the linter adoptable on an existing
+  codebase. See [docs/baseline.md](docs/baseline.md).
 - A YAML 1.2 subset parser, a JSON Schema validator and an example generator,
   so that the tool runs on a bare Node.js installation with nothing to install.
 - OpenAPI 3.0 and 3.1 support, including `$ref` resolution with cycle
   detection.
 - A reference contract (`examples/shop.openapi.yaml`) that passes the linter
-  with zero findings, and a deliberately inconsistent one
-  (`examples/legacy.openapi.yaml`) for demonstrating the rules.
-- 92 tests covering the parser, the model, the rules, the mock server, the
-  recorder, the diff engine, the reports and the command line interface.
+  with zero findings, a deliberately inconsistent one
+  (`examples/legacy.openapi.yaml`) and a fixture that breaks every convention
+  at once (`examples/violations.openapi.yaml`).
+- `src/index.ts` exports the whole tool, so it can be used as a library.
+- `npm run release-check` runs the checks a release depends on: the rule
+  catalogue against `docs/rules.md`, the README claims against reality, every
+  relative link, the published file list, unused exports and leftover debug
+  markers.
 
-### Changed
+### Fixed
 
-- The project is licensed under the **Apache License 2.0** instead of MIT.
-  A `NOTICE` file carries the attribution.
-- The source code carries no comments. The behaviour is documented in
-  `README.md`, `docs/rules.md` and `CONTRIBUTING.md` instead.
+- The global `Response` type resolved to an empty interface under
+  `@types/node` without the DOM lib, so `fetch` responses had no `status`,
+  `headers` or `text`. `lib` now includes `DOM`.
+- The YAML parser registered an anchor under an `undefined` name when the
+  capture group was missing.
+- The HTML report read the severity out of the class list, so a row hidden by
+  one filter could not be shown again by another. Every row now carries
+  `data-severity`.
+- `typescript` is declared as `^5.8.0`: the `erasableSyntaxOnly` compiler
+  option used by the project does not exist in 5.6.
 
-[Unreleased]: https://github.com/apicovenant/apicovenant/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/apicovenant/apicovenant/releases/tag/v0.1.0
+[Unreleased]: https://github.com/apicovenant/apicovenant/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/apicovenant/apicovenant/releases/tag/v1.0.0

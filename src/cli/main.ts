@@ -1,4 +1,13 @@
-
+/**
+ * Command line entry point.
+ *
+ * Every command returns a process exit code:
+ *
+ *   0  success
+ *   1  findings above the configured threshold, or contract drift
+ *   2  usage error (unknown flag, missing argument)
+ *   3  the document could not be read or parsed
+ */
 
 import { parseArgs } from 'node:util';
 
@@ -6,6 +15,7 @@ import { red } from '../util/ansi.ts';
 import { VERSION } from '../version.ts';
 import {
   DIFF_HELP,
+  INIT_HELP,
   LINT_HELP,
   MAIN_HELP,
   MOCK_HELP,
@@ -13,10 +23,11 @@ import {
   RULES_HELP,
 } from './help.ts';
 import { UsageError, describeError, parseInteger, parseSeverity, splitList } from './common.ts';
-import { renderRuleCatalogue, runLint } from './commands/lint.ts';
+import { runLint, renderRuleCatalogue } from './commands/lint.ts';
 import { runMock } from './commands/mock.ts';
 import { runRecord } from './commands/record.ts';
 import { runDiff } from './commands/diff.ts';
+import { runInit } from './commands/init.ts';
 
 const OPTIONS = {
   format: { type: 'string' },
@@ -26,6 +37,10 @@ const OPTIONS = {
   severity: { type: 'string' },
   'fail-on': { type: 'string' },
   'list-rules': { type: 'boolean' },
+  config: { type: 'string' },
+  baseline: { type: 'string' },
+  'update-baseline': { type: 'string' },
+  'no-baseline': { type: 'boolean' },
   port: { type: 'string' },
   host: { type: 'string' },
   latency: { type: 'string' },
@@ -36,6 +51,7 @@ const OPTIONS = {
   'max-requests': { type: 'string' },
   duration: { type: 'string' },
   'replay-all': { type: 'boolean' },
+  force: { type: 'boolean' },
   category: { type: 'string' },
   help: { type: 'boolean', short: 'h' },
   version: { type: 'boolean', short: 'v' },
@@ -69,6 +85,16 @@ function requireFormat(value: string | undefined, allowed: string[], fallback: s
   return value;
 }
 
+const HELP_BY_COMMAND: Record<string, string> = {
+  lint: LINT_HELP,
+  mock: MOCK_HELP,
+  record: RECORD_HELP,
+  diff: DIFF_HELP,
+  rules: RULES_HELP,
+  init: INIT_HELP,
+};
+
+/** Run the CLI and return the process exit code. */
 export async function run(argv: string[]): Promise<number> {
   let parsed: { values: ParsedValues; positionals: string[] };
 
@@ -88,18 +114,7 @@ export async function run(argv: string[]): Promise<number> {
   }
 
   if (!command || asBoolean(values.help)) {
-    const help = command === 'lint'
-      ? LINT_HELP
-      : command === 'mock'
-        ? MOCK_HELP
-        : command === 'record'
-          ? RECORD_HELP
-          : command === 'diff'
-            ? DIFF_HELP
-            : command === 'rules'
-              ? RULES_HELP
-              : MAIN_HELP;
-    process.stdout.write(help);
+    process.stdout.write((command && HELP_BY_COMMAND[command]) ?? MAIN_HELP);
     return 0;
   }
 
@@ -108,13 +123,26 @@ export async function run(argv: string[]): Promise<number> {
       case 'lint':
         return await runLint({
           document: positionals[1] ?? '',
-          format: requireFormat(asString(values.format), ['text', 'json', 'html'], 'text') as 'text' | 'json' | 'html',
+          format: asString(values.format)
+            ? (requireFormat(asString(values.format), ['text', 'json', 'html'], 'text') as
+                | 'text'
+                | 'json'
+                | 'html')
+            : undefined,
           output: asString(values.output),
           rules: splitList(asString(values.rules)),
           ignore: splitList(asString(values.ignore)),
-          severity: parseSeverity(asString(values.severity), 'info'),
-          failOn: (asString(values['fail-on']) ?? 'error') as 'error' | 'warn' | 'never',
+          severity: asString(values.severity)
+            ? parseSeverity(asString(values.severity), 'info')
+            : undefined,
+          failOn: asString(values['fail-on'])
+            ? (asString(values['fail-on']) as 'error' | 'warn' | 'never')
+            : undefined,
           listRules: asBoolean(values['list-rules']),
+          config: asString(values.config),
+          baseline: asString(values.baseline),
+          updateBaseline: asString(values['update-baseline']),
+          noBaseline: asBoolean(values['no-baseline']),
         });
 
       case 'mock':
@@ -145,18 +173,31 @@ export async function run(argv: string[]): Promise<number> {
           golden: asString(values.golden) ?? '',
           target: asString(values.target),
           spec: asString(values.spec),
-          format: requireFormat(asString(values.format), ['text', 'json'], 'text') as 'text' | 'json',
+          format: asString(values.format)
+            ? (requireFormat(asString(values.format), ['text', 'json', 'html'], 'text') as
+                | 'text'
+                | 'json'
+                | 'html')
+            : undefined,
           replayAll: asBoolean(values['replay-all']),
-          failOn: (asString(values['fail-on']) ?? 'changed') as 'changed' | 'never',
+          failOn: asString(values['fail-on'])
+            ? (asString(values['fail-on']) as 'changed' | 'never')
+            : undefined,
+          config: asString(values.config),
+          output: asString(values.output),
         });
 
       case 'rules': {
         const format = requireFormat(asString(values.format), ['text', 'json'], 'text');
-        process.stdout.write(
-          renderRuleCatalogue(asString(values.category), format as 'text' | 'json'),
-        );
+        process.stdout.write(renderRuleCatalogue(asString(values.category), format as 'text' | 'json'));
         return 0;
       }
+
+      case 'init':
+        return await runInit({
+          force: asBoolean(values.force),
+          fileName: asString(values.output),
+        });
 
       default:
         process.stderr.write(`${red('error')} unknown command "${command}"\n\n${MAIN_HELP}`);
@@ -172,6 +213,7 @@ export async function run(argv: string[]): Promise<number> {
   }
 }
 
+/** Entry point used by the bin script. */
 export async function main(): Promise<void> {
   const code = await run(process.argv.slice(2));
   process.exitCode = code;

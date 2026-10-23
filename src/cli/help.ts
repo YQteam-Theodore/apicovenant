@@ -1,22 +1,36 @@
-
-
 export const MAIN_HELP = `apicovenant — an OpenAPI contract guardian
 
 Usage:
   apicovenant <command> [options]
 
 Commands:
-  lint <spec>        Check the design conventions of an OpenAPI document
-  mock <spec>        Serve a mock API generated from an OpenAPI document
-  record             Record real traffic into a golden file
-  diff               Replay a golden file against a live API and report drift
-  rules              Show the catalogue of lint rules
+  init                Write a starter configuration file
+  lint <spec>         Check the design conventions of an OpenAPI document
+  mock <spec>         Serve a mock API generated from an OpenAPI document
+  record              Record real traffic into a golden file
+  diff                Replay a golden file against a live API and report drift
+  rules               Show the catalogue of lint rules
 
 Options:
-  -h, --help         Show this help
-  -v, --version      Show the version
+  -h, --help          Show this help
+  -v, --version       Show the version
 
 Run "apicovenant <command> --help" for command specific options.
+`;
+
+export const INIT_HELP = `apicovenant init — write a starter configuration file
+
+Usage:
+  apicovenant init [options]
+
+Options:
+  --output <file>     Name of the file to create (default: apicovenant.config.json)
+  --force             Overwrite an existing file
+  -h, --help          Show this help
+
+Notes:
+  The generated file is plain JSON. YAML files (apicovenant.config.yaml) are
+  supported too, as is an "apicovenant" key in package.json.
 `;
 
 export const LINT_HELP = `apicovenant lint — check the design conventions of an OpenAPI document
@@ -36,13 +50,19 @@ Options:
   --fail-on <level>   Exit with code 1 when findings of this level or worse exist
                        (error, warn or never; default: error)
   --list-rules        Print the rule catalogue instead of running the linter
+  --config <file>     Read the configuration from this file
+  --baseline <file>   Ignore findings recorded in this baseline file
+  --update-baseline <file>
+                      Record the current findings as the baseline and exit
+  --no-baseline       Ignore the baseline configured in the configuration file
   -h, --help          Show this help
 
 Examples:
   apicovenant lint openapi.yaml
   apicovenant lint openapi.yaml --format json --output report.json
-  apicovenant lint openapi.yaml --ignore schema-example-recommended,info-license-required
-  apicovenant lint openapi.yaml --rules operation-id-required --fail-on warn
+  apicovenant lint openapi.yaml --ignore schema-example-recommended
+  apicovenant lint openapi.yaml --update-baseline .apicovenant-baseline.json
+  apicovenant lint openapi.yaml --baseline .apicovenant-baseline.json
 `;
 
 export const MOCK_HELP = `apicovenant mock — serve a mock API generated from an OpenAPI document
@@ -98,7 +118,9 @@ Options:
   --golden <file>     Golden file to replay (required)
   --target <url>      Base URL of the live API to compare against
   --spec <file>       Compare against a mock generated from this OpenAPI document
-  --format <fmt>      Report format: text (default) or json
+  --format <fmt>      Report format: text (default), json or html
+  --output <file>     Write the report to a file instead of stdout
+  --config <file>     Read the configuration from this file
   --replay-all        Also replay unsafe methods (POST, PUT, PATCH, DELETE)
   --fail-on <level>   Exit with code 1 when the contract drifted (changed or never)
   -h, --help          Show this help
@@ -109,7 +131,7 @@ Notes:
 
 Examples:
   apicovenant diff --golden traffic.golden.json --target http://localhost:3000
-  apicovenant diff --golden traffic.golden.json --spec openapi.yaml
+  apicovenant diff --golden traffic.golden.json --spec openapi.yaml --format html --output drift.html
 `;
 
 export const RULES_HELP = `apicovenant rules — show the catalogue of lint rules

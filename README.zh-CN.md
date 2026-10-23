@@ -49,6 +49,7 @@
 | `apicovenant record` | 在你的 API 前面放一个录制代理，把真实流量存成 **golden 文件** |
 | `apicovenant diff` | 重放 golden 文件，逐字段报告**行为漂移** |
 | `apicovenant rules` | 浏览完整规则目录 |
+| `apicovenant init` | 生成一份初始配置文件 |
 
 ## 为什么零依赖
 
@@ -161,6 +162,54 @@ apicovenant lint openapi.yaml --ignore schema-example-recommended,info-license-r
 apicovenant lint openapi.yaml --severity error
 ```
 
+## 配置文件
+
+项目里每次都要用的设置，可以写进文件，而不是每次都敲一遍参数。
+
+```bash
+apicovenant init          # 生成 apicovenant.config.json
+```
+
+```json
+{
+  "rules": { "ignore": ["schema-example-recommended"], "only": [] },
+  "severity": "error",
+  "failOn": "error",
+  "format": "text"
+}
+```
+
+支持 JSON、YAML，以及 `package.json` 里的 `apicovenant` 字段。
+
+**不认识的配置项会直接报错**，而不是被忽略——否则 `severty` 这种拼写错误会让检查
+因为错误的原因悄悄通过。命令行参数始终覆盖配置文件。
+
+完整说明见 [docs/configuration.md](docs/configuration.md)。
+
+## Baseline（基线）
+
+一个在存量代码上直接报 400 条问题的 linter，第二天就会被关掉。基线解决这个
+问题：把**已经存在**的问题记录下来，之后只有**新增**问题才会让构建失败。
+
+```bash
+# 1. 记录当前状态
+apicovenant lint openapi.yaml --update-baseline .apicovenant-baseline.json
+
+# 2. 之后只有新增问题才失败
+apicovenant lint openapi.yaml --baseline .apicovenant-baseline.json
+```
+
+```
+✓ no findings
+  Shop API v1.4.0 follows every convention.
+
+  document: openapi.yaml
+  37 known findings suppressed by the baseline
+```
+
+把基线提交进仓库，随着问题被修复让它慢慢变空。详见
+[docs/baseline.md](docs/baseline.md)。
+
 ## Mock：从规范生成服务
 
 ```console
@@ -260,9 +309,12 @@ apicovenant diff --golden traffic.golden.json --spec examples/shop.openapi.yaml
 ```yaml
 - name: 检查 API 契约
   run: |
-    npx apicovenant lint openapi.yaml --fail-on error
+    npx apicovenant lint openapi.yaml --baseline .apicovenant-baseline.json
     npx apicovenant diff --golden traffic.golden.json --target "$API_URL"
 ```
+
+如果存量代码还不干净，先记录一次现有问题并把基线提交进仓库——之后构建就只会
+因为**新增**问题而失败。
 
 ### 退出码
 

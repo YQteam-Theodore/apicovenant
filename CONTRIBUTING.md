@@ -147,7 +147,7 @@ Two contracts are worth protecting:
 1. Branch from `main`.
 2. Keep the change focused; unrelated refactors make review harder.
 3. Make sure `node --test` passes.
-4. Update the documentation: `README.md`, `README.zh-CN.md`, `docs/rules.md`.
+4. Update the documentation: `README.md`, `README.zh-CN.md`, `docs/`.
 5. Add a `CHANGELOG.md` entry under *Unreleased*.
 6. Open the pull request and describe **what** changed and **why**.
 

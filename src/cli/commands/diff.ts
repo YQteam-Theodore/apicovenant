@@ -1,6 +1,4 @@
-
-
-import { readTextFile } from '../../util/fs.ts';
+import { readTextFile, writeTextFile } from '../../util/fs.ts';
 import { parseGoldenFile } from '../../record/golden.ts';
 import { startMockServer } from '../../mock/server.ts';
 import {
@@ -11,20 +9,31 @@ import {
   type LiveSource,
 } from '../../diff/compare.ts';
 import { renderDiffReport } from '../../report/diff.ts';
+import { renderDiffHtmlReport } from '../../report/diff-html.ts';
 import { TOOL_NAME, VERSION } from '../../version.ts';
+import { loadConfig, type ReportFormat } from '../../config.ts';
 import { UsageError, loadSpec } from '../common.ts';
 
 export interface DiffCommandOptions {
   golden: string;
   target?: string;
   spec?: string;
-  format: 'text' | 'json';
+  format?: ReportFormat;
   replayAll: boolean;
-  failOn: 'changed' | 'never';
+  failOn?: 'changed' | 'never';
+  config?: string;
+  output?: string;
 }
 
 export async function runDiff(options: DiffCommandOptions): Promise<number> {
   if (!options.golden) throw new UsageError('--golden is required');
+
+  const loaded = await loadConfig({ explicitPath: options.config });
+  const fileConfig = loaded.config;
+
+  const format: ReportFormat = options.format ?? fileConfig.format ?? 'text';
+  const output = options.output ?? fileConfig.output;
+
   if (!options.target && !options.spec) {
     throw new UsageError('either --target or --spec is required');
   }
@@ -50,21 +59,35 @@ export async function runDiff(options: DiffCommandOptions): Promise<number> {
 
   if (mockHandle) await mockHandle.close();
 
-  if (options.format === 'json') {
+  let rendered: string;
+  if (format === 'json') {
+    rendered = `${JSON.stringify(
+      {
+        tool: TOOL_NAME,
+        version: VERSION,
+        generatedAt: new Date().toISOString(),
+        ...report,
+      },
+      null,
+      2,
+    )}\n`;
+  } else if (format === 'html') {
+    rendered = renderDiffHtmlReport({
+      report,
+      goldenFile: options.golden,
+      title: 'Contract drift report',
+    });
+  } else {
+    rendered = `${renderDiffReport({ report, goldenFile: options.golden })}\n`;
+  }
+
+  if (output) {
+    await writeTextFile(output, rendered);
     process.stdout.write(
-      `${JSON.stringify(
-        {
-          tool: TOOL_NAME,
-          version: VERSION,
-          generatedAt: new Date().toISOString(),
-          ...report,
-        },
-        null,
-        2,
-      )}\n`,
+      `${TOOL_NAME}: report written to ${output} (${report.summary.changed} changed, ${report.summary.unchanged} unchanged)\n`,
     );
   } else {
-    process.stdout.write(`${renderDiffReport({ report, goldenFile: options.golden })}\n`);
+    process.stdout.write(rendered);
   }
 
   if (options.failOn === 'never') return 0;

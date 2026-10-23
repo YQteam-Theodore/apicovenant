@@ -43,7 +43,7 @@ body:
     id: version
     attributes:
       label: apicovenant version
-      placeholder: 0.1.0
+      placeholder: 1.0.0
     validations:
       required: true
 

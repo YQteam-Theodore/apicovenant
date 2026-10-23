@@ -133,6 +133,19 @@ if (!read('LICENSE').startsWith('                                 Apache License
 }
 if (!fs.existsSync(path.join(root, 'NOTICE'))) fail('an Apache-2.0 project should ship a NOTICE file');
 
+// The version the CLI reports must be the version in package.json.
+const versionSource = read('src/version.ts');
+if (!versionSource.includes("'..', 'package.json'")) {
+  fail('src/version.ts does not read package.json from the package root');
+}
+const reportedVersion = execFileSync(process.execPath, [path.join(root, 'bin', 'apicovenant.mjs'), '--version'], {
+  encoding: 'utf8',
+}).trim();
+if (reportedVersion !== pkg.version) {
+  fail(`the CLI reports version "${reportedVersion}" but package.json says "${pkg.version}"`);
+}
+notes.push(`version: ${reportedVersion}`);
+
 // -------------------------------------------------------------- dead exports
 
 const sourceFiles = files.filter((file) => rel(file).startsWith('src/') && file.endsWith('.ts'));

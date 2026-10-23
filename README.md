@@ -49,6 +49,7 @@ Existing tools cover one of these each: schema linters check that the document i
 | `apicovenant record` | Put a recording proxy in front of your API and capture traffic as a **golden file** |
 | `apicovenant diff` | Replay the golden file against a live API and report **behaviour drift**, field by field |
 | `apicovenant rules` | Browse the full rule catalogue |
+| `apicovenant init` | Write a starter configuration file |
 
 ## Why zero dependencies
 
@@ -162,6 +163,55 @@ apicovenant lint openapi.yaml --ignore schema-example-recommended,info-license-r
 apicovenant lint openapi.yaml --severity error
 ```
 
+## Configuration
+
+Settings that every command in the project needs can live in a file instead of
+being repeated on every invocation.
+
+```bash
+apicovenant init          # writes apicovenant.config.json
+```
+
+```json
+{
+  "rules": { "ignore": ["schema-example-recommended"], "only": [] },
+  "severity": "error",
+  "failOn": "error",
+  "format": "text"
+}
+```
+
+JSON, YAML and an `apicovenant` key in `package.json` are all supported.
+Unknown settings are an **error**, so a typo can never silently disable a
+check. Command line flags always win over the file.
+
+See [docs/configuration.md](docs/configuration.md) for the full reference.
+
+## Baselines
+
+A linter that reports 400 findings on an existing codebase gets switched off
+on day one. A baseline fixes that: record what already exists, and only
+**new** findings fail the build.
+
+```bash
+# 1. record the current state
+apicovenant lint openapi.yaml --update-baseline .apicovenant-baseline.json
+
+# 2. from now on only new findings fail
+apicovenant lint openapi.yaml --baseline .apicovenant-baseline.json
+```
+
+```
+✓ no findings
+  Shop API v1.4.0 follows every convention.
+
+  document: openapi.yaml
+  37 known findings suppressed by the baseline
+```
+
+Commit the baseline, shrink it as the team fixes things. See
+[docs/baseline.md](docs/baseline.md).
+
 ## Mocking
 
 ```console
@@ -267,9 +317,12 @@ the contract is reported as a schema violation.
 ```yaml
 - name: Check the API contract
   run: |
-    npx apicovenant lint openapi.yaml --fail-on error
+    npx apicovenant lint openapi.yaml --baseline .apicovenant-baseline.json
     npx apicovenant diff --golden traffic.golden.json --target "$API_URL"
 ```
+
+On a codebase that is not clean yet, record the existing findings once and
+commit the baseline — from then on the build only fails on new problems.
 
 ### Exit codes
 
