@@ -13,6 +13,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/apicovenant"><img src="https://img.shields.io/npm/v/apicovenant.svg" alt="npm"></a>
+  <a href="https://github.com/yqteam/apicovenant/actions/workflows/ci.yml"><img src="https://github.com/yqteam/apicovenant/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="license"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D22.18-5FA04E.svg" alt="node">
   <img src="https://img.shields.io/badge/runtime%20dependencies-0-success.svg" alt="dependencies">
@@ -370,14 +371,26 @@ linter、mock server 和 recorder 都基于**同一份**规范化模型工作，
 欢迎贡献 —— 流程、代码风格以及如何新增一条规则，见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ```bash
-git clone https://github.com/apicovenant/apicovenant.git
+git clone https://github.com/yqteam/apicovenant.git
 cd apicovenant
 node --test
 ```
 
+## 支持与联系
+
+`apicovenant` 由 **YQteam** 维护。
+
+| | |
+| --- | --- |
+| 官网 | [yq-tuandui.xyz](https://yq-tuandui.xyz) |
+| 仓库 | [github.com/yqteam/apicovenant](https://github.com/yqteam/apicovenant) |
+| 问题反馈 | [github.com/yqteam/apicovenant/issues](https://github.com/yqteam/apicovenant/issues) |
+| 安全问题 | 见 [SECURITY.md](SECURITY.md) |
+| 邮箱 | [yqteam@h5.quest](mailto:yqteam@h5.quest) |
+
 ## 许可证
 
-[Apache-2.0](LICENSE) © apicovenant contributors
+[Apache-2.0](LICENSE) © 2026 YQteam (yq-tuandui.xyz)
 
 本项目基于 Apache License 2.0 发布。你可以自由使用、修改和再分发本软件
 （包括闭源与商业用途），唯一义务是保留版权声明与许可证全文；该许可证还附带

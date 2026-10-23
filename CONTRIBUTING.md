@@ -6,7 +6,7 @@ together and what a good contribution looks like.
 ## Getting started
 
 ```bash
-git clone https://github.com/apicovenant/apicovenant.git
+git clone https://github.com/yqteam/apicovenant.git
 cd apicovenant
 node --test
 ```
@@ -96,7 +96,9 @@ Rules that hold for the whole document (rather than one operation) can use
 ## Style
 
 - TypeScript, strict mode, no `any` unless there is no alternative.
-- Comments explain *why*, not *what*. The code says what.
+- **The source carries no comments.** The code is the explanation, so a function
+  has to read like its own documentation. Anything that needs prose — why a
+  rule exists, how a format works — belongs in `README.md` or `docs/`.
 - Prefer small functions with names that read like sentences.
 - Keep the runtime dependency count at **zero**. If you need a new capability,
   implement it in `src/` — that is the point of this project.
@@ -130,10 +132,6 @@ test('does the thing', () => {
 three**. If you add a rule, extend a fixture so it fires — otherwise the rule
 can silently break without any test noticing.
 
-If a new rule fires on `shop.openapi.yaml`, either the rule is wrong or the
-reference contract needs updating. Decide deliberately and say why in the pull
-request.
-
 Two contracts are worth protecting:
 
 - `examples/shop.openapi.yaml` must produce **zero** findings. If a new rule
@@ -150,6 +148,68 @@ Two contracts are worth protecting:
 4. Update the documentation: `README.md`, `README.zh-CN.md`, `docs/`.
 5. Add a `CHANGELOG.md` entry under *Unreleased*.
 6. Open the pull request and describe **what** changed and **why**.
+
+## Releasing
+
+The package is published to npm by a maintainer. The order matters, because
+npm reads the version from `package.json` and the tag is what GitHub shows.
+
+**1. Prepare the commit**
+
+```bash
+npm version 1.0.1 --no-git-tag-version
+```
+
+This bumps `package.json` only. `src/version.ts` reads the version from
+`package.json`, so there is nothing else to update.
+
+**2. Write the changelog entry**
+
+Add a section for the new version to `CHANGELOG.md` and move the link
+references at the bottom along with it. The release check compares the
+version in `package.json` with the version the CLI reports, so the two cannot
+drift apart silently.
+
+**3. Run the gates**
+
+```bash
+node --test
+npx tsc --noEmit
+node scripts/release-check.mjs
+```
+
+**4. Commit and tag**
+
+```bash
+git commit -am "release: 1.0.1"
+git tag -a v1.0.1 -m "apicovenant 1.0.1"
+git push origin main --tags
+```
+
+**5. Publish**
+
+Pushing the tag triggers `.github/workflows/release.yml`, which runs the same
+three gates and then publishes to npm with provenance. That is the preferred
+route — it publishes exactly the commit the tag points at.
+
+To publish from your own machine instead:
+
+```bash
+npm publish --access public
+```
+
+Do not do both: npm refuses to publish a version that already exists.
+
+**6. Verify**
+
+```bash
+npm view apicovenant version
+npx apicovenant --version
+```
+
+The published tarball must contain `bin/`, `src/`, `docs/`, `assets/`, the
+two READMEs, `LICENSE` and `NOTICE`. `npm pack --dry-run` prints the exact
+file list before anything goes out.
 
 ## Reporting bugs
 

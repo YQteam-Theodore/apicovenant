@@ -14,6 +14,10 @@
     "zero-dependency"
   ],
   "license": "Apache-2.0",
+  "author": {
+    "name": "YQteam",
+    "url": "https://yq-tuandui.xyz"
+  },
   "type": "module",
   "engines": {
     "node": ">=22.18.0"
@@ -36,7 +40,11 @@
     "README.md",
     "README.zh-CN.md",
     "LICENSE",
-    "NOTICE"
+    "NOTICE",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "start": "node bin/apicovenant.mjs",
@@ -53,10 +61,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/apicovenant/apicovenant.git"
+    "url": "git+https://github.com/yqteam/apicovenant.git"
   },
   "bugs": {
-    "url": "https://github.com/apicovenant/apicovenant/issues"
+    "url": "https://github.com/yqteam/apicovenant/issues"
   },
-  "homepage": "https://github.com/apicovenant/apicovenant#readme"
+  "homepage": "https://github.com/yqteam/apicovenant#readme"
 }

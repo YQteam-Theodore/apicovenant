@@ -13,6 +13,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/apicovenant"><img src="https://img.shields.io/npm/v/apicovenant.svg" alt="npm"></a>
+  <a href="https://github.com/yqteam/apicovenant/actions/workflows/ci.yml"><img src="https://github.com/yqteam/apicovenant/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="license"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D22.18-5FA04E.svg" alt="node">
   <img src="https://img.shields.io/badge/runtime%20dependencies-0-success.svg" alt="dependencies">
@@ -386,14 +387,26 @@ Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the
 workflow, the code style and how to add a rule.
 
 ```bash
-git clone https://github.com/apicovenant/apicovenant.git
+git clone https://github.com/yqteam/apicovenant.git
 cd apicovenant
 node --test
 ```
 
+## Support
+
+`apicovenant` is maintained by **YQteam**.
+
+| | |
+| --- | --- |
+| Website | [yq-tuandui.xyz](https://yq-tuandui.xyz) |
+| Repository | [github.com/yqteam/apicovenant](https://github.com/yqteam/apicovenant) |
+| Issues | [github.com/yqteam/apicovenant/issues](https://github.com/yqteam/apicovenant/issues) |
+| Security | see [SECURITY.md](SECURITY.md) |
+| Email | [yqteam@h5.quest](mailto:yqteam@h5.quest) |
+
 ## License
 
-[Apache-2.0](LICENSE) © apicovenant contributors
+[Apache-2.0](LICENSE) © 2026 YQteam (yq-tuandui.xyz)
 
 Released under the Apache License, Version 2.0. You may use, modify and
 redistribute this software — including inside closed source and commercial
