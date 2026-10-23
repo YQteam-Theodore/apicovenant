@@ -30,13 +30,20 @@ export interface TextReportOptions {
   groupByRule?: boolean;
 
   limit?: number;
+
+  /**
+   * How many findings of one rule are printed before the rest are summarised.
+   * A single rule must never be able to bury the whole report.
+   */
+  maxPerRule?: number;
 }
 
 export function renderTextReport(options: TextReportOptions): string {
   const lines: string[] = [];
   const findings = options.findings;
   const limit = options.limit ?? findings.length;
-  const shown = findings.slice(0, limit);
+
+  const maxPerRule = options.maxPerRule ?? 20;
 
   if (findings.length === 0) {
     lines.push(green(bold('✓ no findings')));
@@ -57,8 +64,18 @@ export function renderTextReport(options: TextReportOptions): string {
   lines.push(bold(summaryParts.join(dim(' · '))));
   lines.push('');
 
+  const printedPerRule = new Map<string, number>();
+
+  const hiddenPerRule = new Map<string, number>();
+
   let currentOperation: string | undefined;
-  for (const finding of shown) {
+  for (const finding of findings.slice(0, limit)) {
+    const printed = printedPerRule.get(finding.ruleId) ?? 0;
+    if (printed >= maxPerRule) {
+      hiddenPerRule.set(finding.ruleId, (hiddenPerRule.get(finding.ruleId) ?? 0) + 1);
+      continue;
+    }
+    printedPerRule.set(finding.ruleId, printed + 1);
     const operation = finding.operation ?? '';
     if (operation !== currentOperation) {
       currentOperation = operation;
@@ -74,6 +91,13 @@ export function renderTextReport(options: TextReportOptions): string {
     }
     if (finding.hint) {
       lines.push(`          ${dim('→ ' + finding.hint)}`);
+    }
+    lines.push('');
+  }
+
+  if (hiddenPerRule.size > 0) {
+    for (const [rule, count] of [...hiddenPerRule.entries()].sort((a, b) => b[1] - a[1])) {
+      lines.push(dim(`  … and ${count} more ${rule}`));
     }
     lines.push('');
   }

@@ -101,7 +101,9 @@ deprecation.
 
 ### `operation-method-semantics` · warn
 
-- `GET` and `HEAD` must not define a request body — they have to be safe.
+- `GET` and `HEAD` must not define a request body — they have to be safe. An
+  empty, optional body is ignored: it carries no information and is a common
+  artefact of form encoded requests.
 - `DELETE` must not require a request body.
 - `PUT` must require a body, because it replaces the resource.
 
@@ -248,10 +250,17 @@ The API should use one naming style for properties. The rule reports the
 minority style, but only when a clear majority (≥ 80 %) exists — an API that
 has no convention yet is left alone.
 
-### `schema-no-nullable` · info
+### `schema-no-nullable` · warn
 
-`nullable: true` means "present but maybe null", which forces a null check on
-every field. Making the field optional expresses the same thing more simply.
+In OpenAPI 3.0 `nullable: true` is the only way to express a null value, so it is
+correct there and is **not** reported. In OpenAPI 3.1 the keyword does not
+exist: the value can never be null, whatever the document intended.
+
+```yaml
+# OpenAPI 3.1
+status:
+  type: [string, 'null']
+```
 
 ### `schema-array-items-required` · error
 
@@ -301,6 +310,11 @@ All collection endpoints should page the same way. Mixing `limit/offset` with
 A collection response should expose the items and the total count in a
 predictable shape, so consumers can write one unwrapping helper instead of one
 per endpoint.
+
+Collections that page with a **cursor** are exempt: such APIs rarely know the
+total number of items, because counting them can be expensive or impossible.
+A `cursor`, `starting_after` or `page_token` parameter, or a `has_more` /
+`next_cursor` property in the response, marks the collection as cursor based.
 
 ```yaml
 UserPage:

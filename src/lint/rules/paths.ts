@@ -7,7 +7,6 @@ const VERB_SEGMENTS = new Set([
   'fetch',
   'create',
   'make',
-  'new',
   'update',
   'modify',
   'edit',

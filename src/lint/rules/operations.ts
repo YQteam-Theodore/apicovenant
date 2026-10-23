@@ -228,7 +228,8 @@ export const operationMethodSemantics: RuleDefinition = {
   keywords: ['http', 'rest', 'semantics', 'idempotency'],
   check({ spec, report }) {
     for (const operation of spec.operations) {
-      if ((operation.method === 'get' || operation.method === 'head') && operation.requestBody) {
+      const body = operation.requestBody;
+      if (body && (operation.method === 'get' || operation.method === 'head') && hasContent(body)) {
         report({
           message: `${operation.key} defines a request body; ${operation.method.toUpperCase()} must be safe`,
           path: operation.pointer,
@@ -237,7 +238,7 @@ export const operationMethodSemantics: RuleDefinition = {
         });
       }
 
-      if (operation.method === 'delete' && operation.requestBody?.required) {
+      if (body && operation.method === 'delete' && body.required) {
         report({
           message: `${operation.key} requires a request body; DELETE should only use path or query parameters`,
           path: operation.pointer,
@@ -246,7 +247,7 @@ export const operationMethodSemantics: RuleDefinition = {
         });
       }
 
-      if (operation.method === 'put' && operation.requestBody?.required === false) {
+      if (operation.method === 'put' && body && body.required === false) {
         report({
           message: `${operation.key} uses PUT but does not require a body`,
           path: operation.pointer,
@@ -257,6 +258,18 @@ export const operationMethodSemantics: RuleDefinition = {
     }
   },
 };
+
+/** True when a request body actually carries something. */
+function hasContent(body: { required?: boolean; content: Map<string, { schema?: unknown }> }): boolean {
+  if (body.required === true) return true;
+  for (const mediaType of body.content.values()) {
+    const schema = mediaType.schema;
+    if (!schema || typeof schema !== 'object') continue;
+    const properties = (schema as { properties?: Record<string, unknown> }).properties;
+    if (properties && Object.keys(properties).length > 0) return true;
+  }
+  return false;
+}
 
 export const operationRules = [
   operationIdRequired,

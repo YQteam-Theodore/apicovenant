@@ -83,6 +83,13 @@ test('a missing baseline file means an empty baseline', async () => {
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
+test('a baseline with a byte order mark is accepted', () => {
+  const baseline = buildBaseline([finding('rule-a', '/a', 'one')]);
+  const withBom = `\uFEFF${JSON.stringify(baseline)}`;
+  const parsed = parseBaseline(withBom, 'b.json');
+  assert.equal(parsed.findings.length, 1);
+});
+
 test('a malformed baseline file is rejected', () => {
   assert.throws(() => parseBaseline('{oops', 'b.json'), /invalid JSON/);
   assert.throws(() => parseBaseline('[]', 'b.json'), /must be a JSON object/);

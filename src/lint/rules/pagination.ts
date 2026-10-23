@@ -118,7 +118,7 @@ export const paginationEnvelope: RuleDefinition = {
       }
 
       const hasTotal = names.some((name) => /^(total|totalCount|total_count|count)$/i.test(name));
-      if (!hasTotal) {
+      if (!hasTotal && !usesCursorPagination(operation, names)) {
         report({
           message: `Collection response of ${operation.key} does not expose a total count`,
           path: `${response.pointer}/content/${mediaType.contentType}/schema`,
@@ -129,5 +129,24 @@ export const paginationEnvelope: RuleDefinition = {
     }
   },
 };
+
+/**
+ * True when the collection pages with a cursor.
+ *
+ * Cursor based APIs rarely know the total number of items — counting them can
+ * be expensive or impossible — so asking for a total count is wrong advice.
+ */
+function usesCursorPagination(
+  operation: { parameters: Array<{ name: string; in: string }> },
+  responseProperties: string[],
+): boolean {
+  const cursorParameter = operation.parameters.some(
+    (parameter) =>
+      parameter.in === 'query' && /^(cursor|starting_?after|after|before|page_?token|next_?cursor|continuation_?token)$/i.test(parameter.name),
+  );
+  if (cursorParameter) return true;
+
+  return responseProperties.some((name) => /^(has_?more|has_?next|next_?cursor|next_?page_?token|continuation)$/i.test(name));
+}
 
 export const paginationRules = [paginationConsistency, paginationEnvelope];

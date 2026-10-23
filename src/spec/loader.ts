@@ -56,12 +56,22 @@ export function validateDocument(doc: unknown, file = ''): void {
   if (!isPlainObject(doc)) {
     throw new SpecError('document root must be a mapping', file);
   }
+  if (typeof doc['swagger'] === 'string') {
+    throw new SpecError(
+      `this is a Swagger ${doc['swagger']} document; apicovenant reads OpenAPI 3.0 and 3.1. ` +
+        'Convert it first, for example with a Swagger 2.0 to OpenAPI 3 converter.',
+      file,
+    );
+  }
   if (typeof doc['openapi'] !== 'string') {
-    throw new SpecError('missing "openapi" version field', file);
+    throw new SpecError(
+      'missing "openapi" version field (expected an OpenAPI 3.0 or 3.1 document)',
+      file,
+    );
   }
   const version = doc['openapi'];
   if (!/^3\.\d+(\.\d+)?/.test(version)) {
-    throw new SpecError(`unsupported OpenAPI version "${version}" (expected 3.x)`, file);
+    throw new SpecError(`unsupported OpenAPI version "${version}" (expected 3.0 or 3.1)`, file);
   }
   if (!isPlainObject(doc['info'])) {
     throw new SpecError('missing "info" object', file);

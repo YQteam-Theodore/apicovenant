@@ -86,7 +86,9 @@ export function parseConfigFile(text: string, filePath: string): ApicovenantConf
     parsed = parseYaml(text);
   } else {
     try {
-      parsed = JSON.parse(text);
+      // Editors on Windows add a byte order mark; it is not part of the file.
+      const source = text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+      parsed = JSON.parse(source);
     } catch (error) {
       throw new ConfigError(`${filePath}: invalid JSON (${(error as Error).message})`);
     }

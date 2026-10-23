@@ -225,22 +225,25 @@ export const schemaPropertyNamingConsistency: RuleDefinition = {
 
 export const schemaNoNullable: RuleDefinition = {
   id: 'schema-no-nullable',
-  title: 'Schemas use optional instead of nullable',
+  title: 'OpenAPI 3.1 schemas do not use nullable',
   description:
-    'A nullable field means "present but maybe null", which forces consumers to null-check ' +
-    'every field. Making the field optional expresses the same thing more simply.',
-  severity: 'info',
+    'In OpenAPI 3.0 "nullable: true" is the only way to express a null value, so it is ' +
+    'correct there and is not reported. In OpenAPI 3.1 the keyword does not exist: the ' +
+    'value can never be null, whatever the document intended.',
+  severity: 'warn',
   category: 'schemas',
-  keywords: ['nullable', 'optional', 'openapi 3.0'],
+  keywords: ['nullable', 'openapi 3.1', 'null'],
   check({ spec, report }) {
+    if (spec.version.startsWith('3.0')) return;
+
     const schemas = componentSchemas(spec);
     for (const [schemaName, schema] of Object.entries(schemas)) {
       walkSchema(spec.raw, schema, (node, pointer) => {
         if (node['nullable'] !== true) return;
         report({
-          message: `Schema "${schemaName}" uses "nullable: true"`,
+          message: `Schema "${schemaName}" uses "nullable: true", which OpenAPI 3.1 ignores`,
           path: `/components/schemas/${schemaName}${pointer}`,
-          hint: 'Remove the property from "required" instead, or use a type union in OpenAPI 3.1.',
+          hint: 'Use a type union instead, e.g. "type: [string, \'null\']".',
         });
       });
     }

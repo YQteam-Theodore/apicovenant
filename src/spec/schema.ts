@@ -68,7 +68,10 @@ function typeNames(schema: JsonSchema): string[] {
   const names: string[] = [];
   if (typeof schema.type === 'string') names.push(schema.type);
   else if (Array.isArray(schema.type)) names.push(...schema.type.filter((t): t is string => typeof t === 'string'));
-  if (schema.nullable === true && !names.includes('null')) names.push('null');
+  // "nullable: true" allows null *in addition to* the declared type. It
+  // must never introduce a type of its own: a schema that only carries
+  // "nullable" and a $ref or anyOf describes "this object, or null".
+  if (schema.nullable === true && names.length > 0 && !names.includes('null')) names.push('null');
   return names;
 }
 
@@ -337,12 +340,26 @@ export interface GenerateOptions {
 }
 
 export function generateExample(schema: unknown, options: GenerateOptions = {}): unknown {
-  const maxDepth = options.maxDepth ?? 6;
+  const maxDepth = options.maxDepth ?? 12;
 
   const build = (sch: unknown, key: string, depth: number): unknown => {
-    if (depth > maxDepth) return null;
     if (!isPlainObject(sch)) return null;
     const s = sch as JsonSchema;
+
+    /**
+     * Pick the branch of a oneOf or anyOf that the generated value actually
+     * satisfies. Picking the first branch blindly produces payloads that
+     * violate the contract they are supposed to illustrate.
+     */
+    const pickBranch = (branches: unknown[], branchKey: string, branchDepth: number): unknown => {
+      let fallback: unknown;
+      for (const branch of branches) {
+        const built = build(branch, branchKey, branchDepth + 1);
+        if (fallback === undefined) fallback = built;
+        if (validateSchema(built, branch, { maxErrors: 1 }).length === 0) return built;
+      }
+      return fallback ?? null;
+    };
 
     if (s.example !== undefined) return s.example;
     if (s.default !== undefined) return s.default;
@@ -350,8 +367,13 @@ export function generateExample(schema: unknown, options: GenerateOptions = {}):
     if (Array.isArray(s.enum) && s.enum.length > 0) return s.enum[0];
     if (s.const !== undefined) return s.const;
 
-    if (Array.isArray(s.oneOf) && s.oneOf.length > 0) return build(s.oneOf[0], key, depth + 1);
-    if (Array.isArray(s.anyOf) && s.anyOf.length > 0) return build(s.anyOf[0], key, depth + 1);
+    // Deeply nested schemas are truncated rather than expanded. The result
+    // still has to satisfy the schema, so fall back to an empty value of the
+    // declared type instead of null, which would break the type outright.
+    if (depth > maxDepth) return emptyValueFor(s);
+
+    if (Array.isArray(s.oneOf) && s.oneOf.length > 0) return pickBranch(s.oneOf, key, depth);
+    if (Array.isArray(s.anyOf) && s.anyOf.length > 0) return pickBranch(s.anyOf, key, depth);
     if (Array.isArray(s.allOf) && s.allOf.length > 0) {
       let merged: Record<string, unknown> = {};
       for (const sub of s.allOf) {
@@ -392,7 +414,7 @@ export function generateExample(schema: unknown, options: GenerateOptions = {}):
       case 'null':
         return null;
       default:
-        return stableString(s, key);
+        return constrainString(stableString(s, key), s, key);
     }
   };
 
@@ -412,7 +434,6 @@ function stableNumber(key: string): number {
 function stableString(schema: JsonSchema, key: string): string {
   const format = (schema.format ?? '').toLowerCase();
   const name = key.toLowerCase();
-
   switch (format) {
     case 'email':
       return 'ada@example.com';
@@ -457,6 +478,60 @@ function stableString(schema: JsonSchema, key: string): string {
   if (name.includes('date')) return '2024-01-15';
 
   return `sample-${name || 'value'}`;
+}
+
+/**
+ * Turn a string into one that satisfies the constraints of its schema.
+ *
+ * A pattern is the hard constraint: a payload that ignores it does not
+ * describe the contract it came from. A few candidates are tried and the first
+ * one the pattern accepts wins.
+ */
+function constrainString(value: string, schema: JsonSchema, key: string): string {
+  let result = value;
+
+  if (typeof schema.pattern === 'string') {
+    try {
+      const pattern = new RegExp(schema.pattern);
+      const literal = schema.pattern.replace(/^\^/, '').replace(/\$$/, '');
+      const candidates = [result, literal, `sample-${key}`, key, `${literal}-1`];
+      for (const candidate of candidates) {
+        if (candidate.length > 0 && pattern.test(candidate)) {
+          result = candidate;
+          break;
+        }
+      }
+    } catch {
+      // An invalid pattern cannot be satisfied; keep the plain value.
+    }
+  }
+
+  if (typeof schema.minLength === 'number' && result.length < schema.minLength) {
+    result = result.padEnd(schema.minLength, 'x');
+  }
+  if (typeof schema.maxLength === 'number' && result.length > schema.maxLength) {
+    result = result.slice(0, schema.maxLength);
+  }
+
+  return result;
+}
+
+/**
+ * The smallest value that still satisfies a schema.
+ *
+ * Used when the generator stops descending because a schema is nested too
+ * deeply. Returning null there would break the declared type, so the empty
+ * value of the type is used instead.
+ */
+export function emptyValueFor(schema: JsonSchema): unknown {
+  const names = typeNames(schema);
+  if (names.includes('object')) return {};
+  if (names.includes('array')) return [];
+  if (names.includes('string')) return '';
+  if (names.includes('integer') || names.includes('number')) return 0;
+  if (names.includes('boolean')) return false;
+  if (names.includes('null')) return null;
+  return null;
 }
 
 export function hashString(text: string): number {

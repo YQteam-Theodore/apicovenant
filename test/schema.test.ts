@@ -109,6 +109,48 @@ test('uses explicit examples when present', () => {
   assert.equal(example['id'], 'fixed');
 });
 
+test('picks the branch of a oneOf that the value satisfies', () => {
+  const schema = {
+    type: 'object',
+    properties: {
+      payment: {
+        oneOf: [
+          { type: 'object', properties: { kind: { type: 'string', enum: ['card'] } }, required: ['kind'] },
+          { type: 'object', properties: { kind: { type: 'string', enum: ['bank'] } }, required: ['kind'] },
+        ],
+      },
+    },
+  };
+
+  const example = generateExample(schema, { includeOptional: true }) as {
+    payment: Record<string, unknown>;
+  };
+  assert.equal(validateSchema(example.payment, schema.properties.payment).length, 0);
+});
+
+test('generated strings satisfy a pattern', () => {
+  const schema = {
+    type: 'object',
+    properties: {
+      url: { type: 'string', pattern: '^/v1/charges' },
+    },
+  };
+  const example = generateExample(schema, { includeOptional: true }) as Record<string, unknown>;
+  assert.equal(validateSchema(example, schema).length, 0);
+  assert.match(String(example['url']), /^\/v1\/charges/);
+});
+
+test('deeply nested schemas still produce valid values', () => {
+  let schema: Record<string, unknown> = { type: 'string' };
+  for (let depth = 0; depth < 20; depth += 1) {
+    schema = { type: 'object', properties: { nested: schema } };
+  }
+
+  const example = generateExample(schema, { includeOptional: true }) as Record<string, unknown>;
+  const violations = validateSchema(example, schema, { maxErrors: 5 });
+  assert.deepEqual(violations, [], 'the truncated value must still satisfy the schema');
+});
+
 test('only includes required properties when asked', () => {
   const schema = {
     type: 'object',

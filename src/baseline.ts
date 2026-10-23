@@ -63,7 +63,9 @@ export function buildBaseline(findings: Finding[], createdAt?: string): Baseline
 export function parseBaseline(text: string, filePath = '<baseline>'): BaselineFile {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(text);
+    // Editors on Windows add a byte order mark; it is not part of the file.
+    const source = text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+    parsed = JSON.parse(source);
   } catch (error) {
     throw new Error(`${filePath}: invalid JSON (${(error as Error).message})`);
   }

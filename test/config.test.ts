@@ -118,6 +118,11 @@ test('returns an empty configuration when there is none', async () => {
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
+test('a configuration with a byte order mark is accepted', () => {
+  const config = parseConfigFile(`\uFEFF${JSON.stringify({ severity: 'warn' })}`, 'x.json');
+  assert.equal(config.severity, 'warn');
+});
+
 test('the default configuration is valid', () => {
   assert.deepEqual(parseConfigFile(JSON.stringify(DEFAULT_CONFIG), 'x.json'), DEFAULT_CONFIG);
 });
