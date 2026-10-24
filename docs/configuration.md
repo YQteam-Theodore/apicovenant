@@ -1,3 +1,11 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/logo-lockup-mono.svg">
+    <source media="(prefers-color-scheme: light)" srcset="../assets/logo-lockup.svg">
+    <img src="../assets/logo-lockup.svg" alt="apicovenant" width="440">
+  </picture>
+</p>
+
 # Configuration
 
 A project can keep its apicovenant settings in a file instead of repeating the

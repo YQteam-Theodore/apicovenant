@@ -48,7 +48,8 @@ Released by **YQteam** (<https://yq-tuandui.xyz>), Apache-2.0.
   `assets/wordmark.svg` is the type on its own, `assets/logo-lockup.svg` is the
   mark and the type together, and both ship a mono variant for dark
   backgrounds. The font notice travels with them in
-  `assets/FONT-LICENSE.txt`.
+  `assets/FONT-LICENSE.txt`. Both READMEs and all four pages under `docs/`
+  now lead with the lockup.
 - **`apicovenant mcp`** — serves the contract tools over the Model Context
   Protocol, so an AI agent can lint a document, read the rule catalogue, list
   the operations of an API, ask for an example payload and check for contract

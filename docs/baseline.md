@@ -1,3 +1,11 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/logo-lockup-mono.svg">
+    <source media="(prefers-color-scheme: light)" srcset="../assets/logo-lockup.svg">
+    <img src="../assets/logo-lockup.svg" alt="apicovenant" width="440">
+  </picture>
+</p>
+
 # Baselines
 
 A linter that reports 400 findings on an existing codebase is a linter that
