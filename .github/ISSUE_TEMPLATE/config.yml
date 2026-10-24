@@ -1,10 +1,10 @@
 blank_issues_enabled: false
 contact_links:
   - name: Report a security vulnerability
-    url: https://github.com/yqteam/apicovenant/blob/main/SECURITY.md
+    url: https://github.com/YQteam-hq/apicovenant/blob/main/SECURITY.md
     about: Please do not open a public issue for security problems.
   - name: Question or discussion
-    url: https://github.com/yqteam/apicovenant/discussions
+    url: https://github.com/YQteam-hq/apicovenant/discussions
     about: Ask a question or propose an idea before opening an issue.
   - name: YQteam
     url: https://yq-tuandui.xyz

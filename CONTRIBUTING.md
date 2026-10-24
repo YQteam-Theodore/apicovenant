@@ -6,7 +6,7 @@ together and what a good contribution looks like.
 ## Getting started
 
 ```bash
-git clone https://github.com/yqteam/apicovenant.git
+git clone https://github.com/YQteam-hq/apicovenant.git
 cd apicovenant
 node --test
 ```

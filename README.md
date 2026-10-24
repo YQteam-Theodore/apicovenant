@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/apicovenant"><img src="https://img.shields.io/npm/v/apicovenant.svg" alt="npm"></a>
-  <a href="https://github.com/yqteam/apicovenant/actions/workflows/ci.yml"><img src="https://github.com/yqteam/apicovenant/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
+  <a href="https://github.com/YQteam-hq/apicovenant/actions/workflows/ci.yml"><img src="https://github.com/YQteam-hq/apicovenant/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="license"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D22.18-5FA04E.svg" alt="node">
   <img src="https://img.shields.io/badge/runtime%20dependencies-0-success.svg" alt="dependencies">
@@ -419,7 +419,7 @@ Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the
 workflow, the code style and how to add a rule.
 
 ```bash
-git clone https://github.com/yqteam/apicovenant.git
+git clone https://github.com/YQteam-hq/apicovenant.git
 cd apicovenant
 node --test
 ```
@@ -431,8 +431,8 @@ node --test
 | | |
 | --- | --- |
 | Website | [yq-tuandui.xyz](https://yq-tuandui.xyz) |
-| Repository | [github.com/yqteam/apicovenant](https://github.com/yqteam/apicovenant) |
-| Issues | [github.com/yqteam/apicovenant/issues](https://github.com/yqteam/apicovenant/issues) |
+| Repository | [github.com/YQteam-hq/apicovenant](https://github.com/YQteam-hq/apicovenant) |
+| Issues | [github.com/YQteam-hq/apicovenant/issues](https://github.com/YQteam-hq/apicovenant/issues) |
 | Security | see [SECURITY.md](SECURITY.md) |
 | Email | [yqteam@h5.quest](mailto:yqteam@h5.quest) |
 

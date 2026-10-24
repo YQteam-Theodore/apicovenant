@@ -61,10 +61,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yqteam/apicovenant.git"
+    "url": "git+https://github.com/YQteam-hq/apicovenant.git"
   },
   "bugs": {
-    "url": "https://github.com/yqteam/apicovenant/issues"
+    "url": "https://github.com/YQteam-hq/apicovenant/issues"
   },
-  "homepage": "https://github.com/yqteam/apicovenant#readme"
+  "homepage": "https://github.com/YQteam-hq/apicovenant#readme"
 }

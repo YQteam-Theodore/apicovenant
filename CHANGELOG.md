@@ -102,5 +102,5 @@ Released by **YQteam** (<https://yq-tuandui.xyz>), Apache-2.0.
 - `typescript` is declared as `^5.8.0`: the `erasableSyntaxOnly` compiler
   option used by the project does not exist in 5.6.
 
-[Unreleased]: https://github.com/yqteam/apicovenant/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/yqteam/apicovenant/releases/tag/v1.0.0
+[Unreleased]: https://github.com/YQteam-hq/apicovenant/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/YQteam-hq/apicovenant/releases/tag/v1.0.0
