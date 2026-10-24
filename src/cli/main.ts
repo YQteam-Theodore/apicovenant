@@ -7,6 +7,7 @@ import {
   INIT_HELP,
   LINT_HELP,
   MAIN_HELP,
+  MCP_HELP,
   MOCK_HELP,
   RECORD_HELP,
   RULES_HELP,
@@ -17,6 +18,7 @@ import { runMock } from './commands/mock.ts';
 import { runRecord } from './commands/record.ts';
 import { runDiff } from './commands/diff.ts';
 import { runInit } from './commands/init.ts';
+import { runMcp } from './commands/mcp.ts';
 
 const OPTIONS = {
   format: { type: 'string' },
@@ -81,6 +83,7 @@ const HELP_BY_COMMAND: Record<string, string> = {
   diff: DIFF_HELP,
   rules: RULES_HELP,
   init: INIT_HELP,
+  mcp: MCP_HELP,
 };
 
 
@@ -187,6 +190,9 @@ export async function run(argv: string[]): Promise<number> {
           force: asBoolean(values.force),
           fileName: asString(values.output),
         });
+
+      case 'mcp':
+        return await runMcp();
 
       default:
         process.stderr.write(`${red('error')} unknown command "${command}"\n\n${MAIN_HELP}`);

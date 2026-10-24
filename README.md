@@ -51,6 +51,7 @@ Existing tools cover one of these each: schema linters check that the document i
 | `apicovenant diff` | Replay the golden file against a live API and report **behaviour drift**, field by field |
 | `apicovenant rules` | Browse the full rule catalogue |
 | `apicovenant init` | Write a starter configuration file |
+| `apicovenant mcp` | Serve the contract tools to an AI agent over the Model Context Protocol |
 
 ## Why zero dependencies
 
@@ -345,8 +346,40 @@ commit the baseline — from then on the build only fails on new problems.
 | `2` | Usage error (unknown flag, unknown rule, missing argument) |
 | `3` | The document could not be read or parsed |
 
-## Use it as a library
+## Give it to an AI agent
 
+An agent that writes an OpenAPI document needs the same answers you do: does
+it break a convention, what does this endpoint look like, did the last change
+move the contract. `apicovenant mcp` serves them over the
+[Model Context Protocol](https://modelcontextprotocol.io).
+
+```bash
+apicovenant mcp
+```
+
+Point a client at it:
+
+```json
+{
+  "mcpServers": {
+    "apicovenant": {
+      "command": "apicovenant",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+The agent gets five tools — `lint_openapi`, `list_rules`, `list_operations`,
+`example_response` and `check_contract_drift` — plus the rule reference as a
+resource. The protocol is implemented directly against the specification, so
+there is **no MCP SDK dependency** and the zero-runtime-dependency promise
+still holds.
+
+See [docs/mcp.md](docs/mcp.md) for the client configuration of every editor and
+the full tool reference.
+
+## Use it as a library
 Everything the CLI does is available programmatically:
 
 ```ts
@@ -374,6 +407,7 @@ src/
   record/      recording proxy + golden file format
   diff/        contract diffing with JSON Pointer paths
   report/      terminal, JSON and standalone HTML reports
+  mcp/         the Model Context Protocol server
   cli/         argument parsing and command dispatch
 ```
 

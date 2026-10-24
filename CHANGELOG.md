@@ -42,6 +42,12 @@ Released by **YQteam** (<https://yq-tuandui.xyz>), Apache-2.0.
   listed separately and never counted as drift.
 - **`apicovenant rules`** — the rule catalogue, as text or JSON.
 - **`apicovenant init`** — writes a starter configuration file.
+- **`apicovenant mcp`** — serves the contract tools over the Model Context
+  Protocol, so an AI agent can lint a document, read the rule catalogue, list
+  the operations of an API, ask for an example payload and check for contract
+  drift. The protocol is implemented directly against the specification, so no
+  MCP SDK is pulled in and the runtime dependency count stays at zero. See
+  [docs/mcp.md](docs/mcp.md).
 - **Configuration files** — `apicovenant.config.json`, the YAML equivalents,
   `.apicovenantrc.*`, or an `apicovenant` key in `package.json`. Unknown
   settings are an error, so a typo can never silently disable a check. See

@@ -10,12 +10,38 @@ Commands:
   record              Record real traffic into a golden file
   diff                Replay a golden file against a live API and report drift
   rules               Show the catalogue of lint rules
+  mcp                 Serve the contract tools over the Model Context Protocol
 
 Options:
   -h, --help          Show this help
   -v, --version       Show the version
 
 Run "apicovenant <command> --help" for command specific options.
+`;
+
+export const MCP_HELP = `apicovenant mcp — serve the contract tools over the Model Context Protocol
+
+Usage:
+  apicovenant mcp
+
+Options:
+  -h, --help          Show this help
+
+Notes:
+  The server speaks JSON-RPC 2.0 over stdin and stdout, one message per line.
+  Point an MCP client at it:
+
+    {
+      "mcpServers": {
+        "apicovenant": {
+          "command": "apicovenant",
+          "args": ["mcp"]
+        }
+      }
+    }
+
+  It exposes lint_openapi, list_rules, list_operations, example_response and
+  check_contract_drift. See docs/mcp.md.
 `;
 
 export const INIT_HELP = `apicovenant init — write a starter configuration file

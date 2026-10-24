@@ -51,6 +51,7 @@
 | `apicovenant diff` | 重放 golden 文件，逐字段报告**行为漂移** |
 | `apicovenant rules` | 浏览完整规则目录 |
 | `apicovenant init` | 生成一份初始配置文件 |
+| `apicovenant mcp` | 通过 Model Context Protocol 把契约工具交给 AI agent |
 
 ## 为什么零依赖
 
@@ -333,6 +334,35 @@ apicovenant diff --golden traffic.golden.json --spec examples/shop.openapi.yaml
 | `2` | 用法错误（未知参数、未知规则、缺少必填项） |
 | `3` | 文档读取或解析失败 |
 
+## 交给 AI agent
+
+写 OpenAPI 文档的 agent 需要的答案和你一样：有没有违反约定、这个接口长什么样、
+上次改动有没有把契约改坏。`apicovenant mcp` 通过
+[Model Context Protocol](https://modelcontextprotocol.io) 把这些答案送过去。
+
+```bash
+apicovenant mcp
+```
+
+在客户端里配上：
+
+```json
+{
+  "mcpServers": {
+    "apicovenant": {
+      "command": "apicovenant",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+agent 会拿到五个工具 —— `lint_openapi`、`list_rules`、`list_operations`、
+`example_response`、`check_contract_drift` —— 以及作为 resource 的规则手册。
+协议是直接照规范实现的，**不引入任何 MCP SDK 依赖**，零运行时依赖的承诺依然成立。
+
+各编辑器的客户端配置和完整工具说明见 [docs/mcp.md](docs/mcp.md)。
+
 ## 作为库使用
 
 CLI 能做的，程序里都能做：
@@ -361,6 +391,7 @@ src/
   record/      录制代理 + golden 文件格式
   diff/        带 JSON Pointer 路径的契约差分
   report/      终端、JSON、独立 HTML 报告
+  mcp/         Model Context Protocol 服务端
   cli/         参数解析与命令分发
 ```
 
