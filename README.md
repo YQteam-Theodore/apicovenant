@@ -64,6 +64,10 @@ That means writing a few things ourselves — a YAML subset parser, a JSON Schem
 
 The source is TypeScript and is executed directly by Node's native type stripping, so there is still no build step.
 
+The one exception is the published package. Node refuses to strip types for
+files under `node_modules`, so the tarball also carries a compiled `dist/`
+and the installed command runs that. A checkout keeps running the sources.
+
 ## Install
 
 ```bash

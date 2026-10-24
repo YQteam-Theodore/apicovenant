@@ -14,7 +14,7 @@ function fail(message) {
 
 function walk(dir, out = []) {
   for (const entry of fs.readdirSync(dir)) {
-    if (entry === '.git' || entry === 'node_modules' || entry === 'coverage') continue;
+    if (entry === '.git' || entry === 'node_modules' || entry === 'coverage' || entry === 'dist') continue;
     const full = path.join(dir, entry);
     if (fs.statSync(full).isDirectory()) walk(full, out);
     else out.push(full);
@@ -96,16 +96,37 @@ for (const [name, text] of [
 
 
 const pkg = JSON.parse(read('package.json'));
+
+// dist/ is produced by "npm run build" rather than checked in, so it is
+// validated through the sources it is compiled from.
+const BUILD_ROOT = 'dist';
+const SOURCE_ROOT = 'src';
+
+function sourceOf(published) {
+  const relative = published.replace(/^\.\//, '').split(path.sep).join('/');
+  if (!relative.startsWith(`${BUILD_ROOT}/`)) return null;
+  const stem = relative.slice(BUILD_ROOT.length + 1).replace(/\.d\.ts$|\.js$/, '');
+  return `${SOURCE_ROOT}/${stem}.ts`;
+}
+
 for (const entry of pkg.files ?? []) {
+  if (entry === BUILD_ROOT) {
+    if (!fs.existsSync(path.join(root, 'tsconfig.build.json'))) {
+      fail(`package.json "files" ships "${entry}" but there is no tsconfig.build.json to build it`);
+    }
+    continue;
+  }
   if (!fs.existsSync(path.join(root, entry))) fail(`package.json "files" lists a missing entry: ${entry}`);
 }
 for (const [name, target] of Object.entries(pkg.bin ?? {})) {
   if (!fs.existsSync(path.join(root, target))) fail(`package.json bin "${name}" points to a missing file: ${target}`);
 }
 for (const [key, target] of Object.entries(pkg.exports?.['.'] ?? {})) {
-  if (typeof target === 'string' && !fs.existsSync(path.join(root, target))) {
-    fail(`package.json exports "${key}" points to a missing file: ${target}`);
-  }
+  if (typeof target !== 'string') continue;
+  if (fs.existsSync(path.join(root, target))) continue;
+  const source = sourceOf(target);
+  if (source && fs.existsSync(path.join(root, source))) continue;
+  fail(`package.json exports "${key}" points to a missing file: ${target}`);
 }
 if ((pkg.dependencies && Object.keys(pkg.dependencies).length > 0) || (pkg.peerDependencies && Object.keys(pkg.peerDependencies).length > 0)) {
   fail('the package must have zero runtime dependencies');

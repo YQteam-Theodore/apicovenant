@@ -25,6 +25,12 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Install the build toolchain
+        run: npm install --no-save typescript@^5.8.0 @types/node@^22.7.0
+
+      - name: Build
+        run: npm run build
+
       - name: Run the test suite
         run: node --test
 
@@ -32,9 +38,7 @@ jobs:
         run: node bin/apicovenant.mjs lint examples/shop.openapi.yaml
 
       - name: Type check
-        run: |
-          npm install --no-save typescript@^5.8.0 @types/node@^22.7.0
-          npx tsc --noEmit
+        run: npx tsc --noEmit
 
       - name: Release check
         run: node scripts/release-check.mjs

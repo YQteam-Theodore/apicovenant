@@ -23,6 +23,21 @@ node bin/apicovenant.mjs lint examples/shop.openapi.yaml   # try it out
 node scripts/release-check.mjs   # the checks a release depends on
 ```
 
+### The published package
+
+A checkout runs the sources directly. The published npm package cannot: Node
+refuses to strip types for files under `node_modules`, so the tarball also
+carries a compiled `dist/` and the installed command runs that.
+
+```bash
+npm install                      # the TypeScript compiler, for the build only
+npm run build                    # compile src/ to dist/
+npm pack                         # the tarball that gets published
+```
+
+`npm run build` writes `dist/`, which is not checked in. `prepack` runs it
+automatically, so `npm publish` always ships a fresh build.
+
 ### The three gates
 
 A change is ready when all three pass:
@@ -50,6 +65,7 @@ src/
   cli/       argument parsing and command dispatch
 test/        the test suite, one file per area
 examples/    a clean reference contract and a deliberately broken one
+dist/        the compiled build that the npm package ships (not checked in)
 ```
 
 ## Adding a rule

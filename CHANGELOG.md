@@ -11,6 +11,27 @@ says so.
 
 ## [Unreleased]
 
+## [1.0.1] — 2026-10-24
+
+The published package could not run. `apicovenant@1.0.0` installed without
+errors and then failed on the first command, because the tarball shipped
+TypeScript sources and Node refuses to strip types for files under
+`node_modules`.
+
+Released by **YQteam** (<https://yq-tuandui.xyz>), Apache-2.0.
+
+### Fixed
+
+- **The published package now runs.** The tarball ships a compiled `dist/`
+  alongside the sources, and the command line entry point loads the compiled
+  output when it is installed. A checkout still runs the sources directly.
+- **The package entry point resolves to the compiled build.** `apicovenant` is
+  now importable as a library, and the type declarations are published
+  alongside the JavaScript.
+- **The packaging is covered by a test.** The suite packs the tarball,
+  installs it into a throwaway project and runs the installed command, so a
+  broken package cannot be published again.
+
 ## [1.0.0] — 2026-10-23
 
 The first stable release. One CLI, four commands, zero runtime dependencies.
@@ -102,5 +123,6 @@ Released by **YQteam** (<https://yq-tuandui.xyz>), Apache-2.0.
 - `typescript` is declared as `^5.8.0`: the `erasableSyntaxOnly` compiler
   option used by the project does not exist in 5.6.
 
-[Unreleased]: https://github.com/YQteam-hq/apicovenant/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/YQteam-hq/apicovenant/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/YQteam-hq/apicovenant/releases/tag/v1.0.1
 [1.0.0]: https://github.com/YQteam-hq/apicovenant/releases/tag/v1.0.0
