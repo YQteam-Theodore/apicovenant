@@ -1,10 +1,8 @@
-# apicovenant
-
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-mono.svg">
-    <source media="(prefers-color-scheme: light)" srcset="assets/logo.svg">
-    <img src="assets/logo.svg" alt="apicovenant" width="128" height="128">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-lockup-mono.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/logo-lockup.svg">
+    <img src="assets/logo-lockup.svg" alt="apicovenant" width="560">
   </picture>
 </p>
 
@@ -437,6 +435,25 @@ node --test
 | Issues | [github.com/yqteam/apicovenant/issues](https://github.com/yqteam/apicovenant/issues) |
 | Security | see [SECURITY.md](SECURITY.md) |
 | Email | [yqteam@h5.quest](mailto:yqteam@h5.quest) |
+
+### Brand
+
+The mark is a square spiral drawn in graphite. The wordmark is set in
+[Outfit](https://fonts.google.com/specimen/Outfit) and converted to outlines, so
+it renders identically everywhere and needs no font at runtime.
+
+| File | What it is |
+| --- | --- |
+| `assets/logo.svg` | The mark on its own |
+| `assets/logo-mono.svg` | The mark, for dark backgrounds |
+| `assets/wordmark.svg` | The wordmark on its own |
+| `assets/wordmark-mono.svg` | The wordmark, for dark backgrounds |
+| `assets/logo-lockup.svg` | The mark and the wordmark together |
+| `assets/logo-lockup-mono.svg` | The lockup, for dark backgrounds |
+| `assets/icon.svg` | The mark in a rounded square |
+
+Outfit is licensed under the SIL Open Font License 1.1. The notice travels with
+the assets in [assets/FONT-LICENSE.txt](assets/FONT-LICENSE.txt).
 
 ## License
 

@@ -42,6 +42,13 @@ Released by **YQteam** (<https://yq-tuandui.xyz>), Apache-2.0.
   listed separately and never counted as drift.
 - **`apicovenant rules`** — the rule catalogue, as text or JSON.
 - **`apicovenant init`** — writes a starter configuration file.
+- **A wordmark and a lockup** — the brand had a mark but no type. The wordmark is
+  set in [Outfit](https://fonts.google.com/specimen/Outfit) and converted to
+  outlines, so it renders identically everywhere and needs no font at runtime.
+  `assets/wordmark.svg` is the type on its own, `assets/logo-lockup.svg` is the
+  mark and the type together, and both ship a mono variant for dark
+  backgrounds. The font notice travels with them in
+  `assets/FONT-LICENSE.txt`.
 - **`apicovenant mcp`** — serves the contract tools over the Model Context
   Protocol, so an AI agent can lint a document, read the rule catalogue, list
   the operations of an API, ask for an example payload and check for contract

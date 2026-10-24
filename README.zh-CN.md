@@ -1,10 +1,8 @@
-# apicovenant
-
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-mono.svg">
-    <source media="(prefers-color-scheme: light)" srcset="assets/logo.svg">
-    <img src="assets/logo.svg" alt="apicovenant" width="128" height="128">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-lockup-mono.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/logo-lockup.svg">
+    <img src="assets/logo-lockup.svg" alt="apicovenant" width="560">
   </picture>
 </p>
 
@@ -418,6 +416,24 @@ node --test
 | 问题反馈 | [github.com/yqteam/apicovenant/issues](https://github.com/yqteam/apicovenant/issues) |
 | 安全问题 | 见 [SECURITY.md](SECURITY.md) |
 | 邮箱 | [yqteam@h5.quest](mailto:yqteam@h5.quest) |
+
+### 品牌
+
+图标是石墨色的方螺旋。文字标使用 [Outfit](https://fonts.google.com/specimen/Outfit)
+并已转为轮廓路径，所以在任何环境渲染一致，运行时也不依赖字体。
+
+| 文件 | 内容 |
+| --- | --- |
+| `assets/logo.svg` | 单独的图标 |
+| `assets/logo-mono.svg` | 浅色图标，用于深色背景 |
+| `assets/wordmark.svg` | 单独的文字标 |
+| `assets/wordmark-mono.svg` | 浅色文字标，用于深色背景 |
+| `assets/logo-lockup.svg` | 图标 + 文字 |
+| `assets/logo-lockup-mono.svg` | 浅色组合标，用于深色背景 |
+| `assets/icon.svg` | 圆角方块内的图标 |
+
+Outfit 依据 SIL Open Font License 1.1 授权，声明随资产一起分发，见
+[assets/FONT-LICENSE.txt](assets/FONT-LICENSE.txt)。
 
 ## 许可证
 
